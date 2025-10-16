@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VexFlow SVG Timed Notes</title>
+    <style>
+        #output svg {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<div id="output"></div>
+
+<!-- VexFlow CDN -->
+<!--<script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/umd/vexflow.js"></script>-->
+
+<script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+<script>
+    const VF = Vex.Flow;
+
+    const div = document.getElementById("output");
+    const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+    renderer.resize(500, 200);
+    const context = renderer.getContext();
+
+    // Create a stave
+    const stave = new VF.Stave(10, 40, 400);
+    stave.addClef("treble").setContext(context).draw();
+
+    // Function to draw a note
+    function drawNote(noteSpec, duration = "q") {
+        // Clear the SVG output first
+        div.innerHTML = "";
+
+        // Recreate renderer & context after clearing
+        const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+        renderer.resize(500, 200);
+        const context = renderer.getContext();
+
+        // Draw the stave again
+        const stave = new VF.Stave(10, 40, 400);
+        stave.addClef("treble").setContext(context).draw();
+
+        const note = new VF.StaveNote({
+            clef: "treble",
+            keys: [noteSpec],
+            duration: duration,
+        });
+
+        // Add accidental if needed
+        if (noteSpec.includes("#")) {
+            note.addAccidental(0, new VF.Accidental("#"));
+        } else if (noteSpec.includes("b")) {
+            note.addAccidental(0, new VF.Accidental("b"));
+        }
+
+        const voice = new VF.Voice({ num_beats: 1, beat_value: 4 });
+        voice.addTickables([note]);
+
+        new VF.Formatter().joinVoices([voice]).format([voice], 300);
+        voice.draw(context, stave);
+    }
+
+    // Draw the first note (A4)
+    drawNote("a/4");
+
+    // After 5 seconds, draw the second note (G#4)
+    setTimeout(() => {
+        drawNote("g#/4");
+    }, 5000);
+</script>
+</body>
+</html>

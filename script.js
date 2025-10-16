@@ -47,24 +47,45 @@ function flashKey(keyEl, color) {
 }
 
 
-/* easy score demo */
-const { Factory, EasyScore, System } = Vex.Flow;
+/* vexflow score demo */
+const { Renderer, Stave, StaveNote, Voice, Formatter } = Vex.Flow;
 
-const vf = new Factory({
-    renderer: { elementId: 'stave', width: 500, height: 200 },
+// Create an SVG renderer and attach it to the DIV element named "stave".
+const div = document.getElementById("stave");
+const renderer = new Renderer(div, Renderer.Backends.SVG);
+
+// Configure the rendering context.
+renderer.resize(500, 200);
+const context = renderer.getContext();
+
+// Create a stave of width 400 at position 10, 40 on the canvas.
+const stave = new Stave(10, 40, 400);
+
+// Add a clef and time signature.
+stave.addClef("treble").addTimeSignature("4/4");
+
+// Connect it to the rendering context and draw!
+stave.setContext(context).draw();
+
+
+const notes = [
+    new StaveNote({
+        keys: ["c/4"],
+        duration: "w",
+    }),
+];
+
+// Create a voice in 4/4 and add above notes
+const voices = [
+   new Voice({
+        numBeats: 4,
+        beatValue: 4,
+    }).addTickables(notes),
+];
+
+new Formatter().joinVoices(voices).format(voices, 350);
+
+// Render voices.
+voices.forEach(function (v) {
+    v.draw(context, stave);
 });
-
-const score = vf.EasyScore();
-const system = vf.System();
-
-system
-    .addStave({
-        voices: [
-            score.voice(score.notes('C#5/q, B4, A4, G#4', { stem: 'up' })),
-            score.voice(score.notes('C#4/h, C#4', { stem: 'down' })),
-        ],
-    })
-    .addClef('treble')
-    .addTimeSignature('4/4');
-
-vf.draw();
