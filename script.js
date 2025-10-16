@@ -67,20 +67,19 @@ stave.addClef("treble").addTimeSignature("4/4");
 // Connect it to the rendering context and draw!
 stave.setContext(context).draw();
 
+function createNote(note) {
+    return [new StaveNote({
+        keys: [note.toLowerCase() + '/4'],
+        duration: 'w',
+    })]
+}
 
-const notes = [
-    new StaveNote({
-        keys: ["c/4"],
-        duration: "w",
-    }),
-];
-
-// Create a voice in 4/4 and add above notes
+// Create a voice in 4/4 and add above note(s)
 const voices = [
    new Voice({
         numBeats: 4,
         beatValue: 4,
-    }).addTickables(notes),
+    }).addTickables(createNote(targetNote)),
 ];
 
 new Formatter().joinVoices(voices).format(voices, 350);
