@@ -68,9 +68,12 @@ stave.addClef("treble").addTimeSignature("4/4");
 stave.setContext(context).draw();
 
 function createNote(note) {
+    console.log('Creating note:', note);
     return [new StaveNote({
+        clef: "treble",
         keys: [note.toLowerCase() + '/4'],
         duration: 'w',
+        auto_accidentals: true
     })]
 }
 
@@ -79,9 +82,10 @@ const voices = [
    new Voice({
         numBeats: 4,
         beatValue: 4,
-    }).addTickables(createNote(targetNote)),
+    }).addTickables(createNote(targetNote))
 ];
 
+Vex.Flow.Accidental.applyAccidentals(voices, 'C');
 new Formatter().joinVoices(voices).format(voices, 350);
 
 // Render voices.
