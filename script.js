@@ -5,13 +5,17 @@ const answer = document.getElementById('answer');
 const availableNotes = Array.from(keys).map(k => k.dataset.key);
 
 // Pick a random target note
-let targetNote = getRandomNote();
+let targetNote = getRandomNoteExcept();
 answer.innerText = 'Find: ' + targetNote;
 console.log('Target note:', targetNote);
 
-function getRandomNote() {
-    const randomIndex = Math.floor(Math.random() * availableNotes.length);
-    return availableNotes[randomIndex];
+function getRandomNoteExcept(targetNote) {
+    let note, randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * availableNotes.length);
+        note = availableNotes[randomIndex];
+    }while(note === targetNote);
+    return note;
 }
 
 // Add listeners
@@ -23,7 +27,7 @@ keys.forEach((key) => {
             flashKey(e.target, 'green');
             console.log('✅ Correct! It was', clickedNote);
             // Pick a new note
-            targetNote = getRandomNote();
+            targetNote = getRandomNoteExcept(targetNote);
             answer.innerText = 'Find: ' + targetNote;
             console.log('Next note:', targetNote);
         } else {
@@ -39,5 +43,5 @@ function flashKey(keyEl, color) {
     keyEl.style.transition = 'background-color 0.2s';
     setTimeout(() => {
         keyEl.style.backgroundColor = originalColor;
-    }, 400);
+    }, 300);
 }
