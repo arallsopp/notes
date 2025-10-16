@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Note Identifier — fixed treble staff</title>
+  <style>
+    body{font-family:system-ui, Arial, sans-serif; background:#f2f6ff; display:flex;justify-content:center;padding:36px;}
+    .card{width:680px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(10,20,40,0.08)}
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0;font-size:18px}
+    #stave{width:100%;height:200px;background:#fff;border-radius:8px;display:block;margin-top:12px}
+    .controls{display:flex;gap:10px;align-items:center}
+    .info{display:flex;gap:14px;margin-top:10px;align-items:center}
+    .score{font-weight:600;color:#0a6}
+    input[type=text]{padding:8px 10px;font-size:16px;text-transform:uppercase;width:100px;text-align:center}
+    button{padding:8px 10px;border-radius:8px;border:1px solid #ddd;background:#fafafa;cursor:pointer}
+    .muted{color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <header>
+    <div>
+      <h1>Note Identifier — Treble Clef (keyboard input)</h1>
+      <div class="muted">Type the note (A–G, optionally # or b) and press Enter</div>
+    </div>
+    <div class="controls">
+      <label><input type="checkbox" id="accToggle"> Include ♯/♭</label>
+      <button id="next">Next</button>
+    </div>
+  </header>
+
+  <svg id="stave" viewBox="0 0 680 200" role="img" aria-label="Treble staff with a single note"></svg>
+
+  <div class="info">
+    <div class="score">Correct: <span id="correct">0</span></div>
+    <div class="score">Attempts: <span id="attempts">0</span></div>
+    <div class="muted">Accuracy: <span id="accuracy">—</span></div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+    <div class="muted">Examples: <code>A</code>, <code>F#</code>, <code>Bb</code></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="answer" type="text" maxlength="3" placeholder="A / F#" autofocus>
+      <button id="show">Show answer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    // Elements
+    const svg = document.getElementById('stave');
+    const accToggle = document.getElementById('accToggle');
+    const nextBtn = document.getElementById('next');
+    const answerEl = document.getElementById('answer');
+    const showBtn = document.getElementById('show');
+    const correctEl = document.getElementById('correct');
+    const attemptsEl = document.getElementById('attempts');
+    const accuracyEl = document.getElementById('accuracy');
+
+    // Visual layout
+    const width = 680, height = 200;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    const staffLeft = 80, staffRight = 600;
+    const staffTop = 48;
+    const lineSpacing = 14; // distance between staff lines
+    const lines = 5;
+
+    // ORDERED natural notes for staff positions (lowest -> highest)
+    // We will map base natural notes to "staff steps" (line/space positions)
+    // Sequence of natural positions we support: C4 .. A5
+    const naturalOrder = ['C4','D4','E4','F4','G4','A4','B4','C5','D5','E5','F5','G5','A5'];
+
+    // Precompute mapping base note -> step index relative to E4 (bottom line).
+    // bottom line is E4. We count steps (line/space) in half-steps of staff positions:
+    // E4 -> step 0, F4 -> 1, G4 -> 2, ... A5 -> 10
+    const stepIndexOf = {};
+    naturalOrder.forEach((label, idx) => {
+      // compute index relative to E4
+      const e4Index = naturalOrder.indexOf('E4'); // should be 2
+      stepIndexOf[label] = idx - e4Index;
+    });
+
+    // Accidentals list that we'll optionally include (enharmonics drawn on same staff position
+    // as their natural/letter counterpart)
+    const accidentals = [
+      'C#4','Db4','D#4','Eb4','F#4','Gb4','G#4','Ab4','A#4','Bb4',
+      'C#5','Db5','D#5','Eb5','F#5','Gb5','G#5','Ab5','A#5','Bb5'
+    ];
+
+    // Score state
+    let correct = 0, attempts = 0;
+    let currentNote = null; // e.g. "F4" or "F#4" or "Bb4"
+
+    // Helpers: normalize user input
+    function normalizeInput(raw) {
+      if (!raw) return '';
+      // replace unicode flats/sharps with ascii
+      raw = raw.replace('♯','#').replace('♭','b');
+      raw = raw.trim().toUpperCase();
+      // allow 1-3 chars: Letter, optional (# or B), optional octave digit (we accept guesses without octave)
+      // If user typed "F#" or "FB" treat as "F#"/"Fb" etc.
+      return raw;
+    }
+
+    // Get base natural label from a possibly-accidental note (strip accidental markers and keep octave)
+    // Example: "F#4" -> "F4"; "Bb5" -> "B5"; "F#"(no octave) -> "F"
+    function baseFromLabel(label) {
+      if(!label) return '';
+      // label like "F#4" or "F4" or "Bb"
+      const m = label.match(/^([A-G])([#B]?)(\d?)$/i);
+      if(!m) return '';
+      const letter = m[1].toUpperCase();
+      const octave = m[3] || '';
+      return letter + octave;
+    }
+
+    // Build random pools
+    const naturalsPool = naturalOrder.slice(); // C4..A5
+    const accidentalsPool = accidentals.slice();
+
+    // Draw staff
+    function drawStaff() {
+      // clear
+      while (svg.lastChild) svg.removeChild(svg.lastChild);
+
+      // staff lines
+      for (let i = 0; i < lines; i++) {
+        const y = staffTop + i * lineSpacing;
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', staffLeft);
+        line.setAttribute('x2', staffRight);
+        line.setAttribute('y1', y);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#111');
+        line.setAttribute('stroke-width', 1.2);
+        svg.appendChild(line);
+      }
+      // treble clef glyph (text)
+      const clef = document.createElementNS('http://www.w3.org/2000/svg','text');
+      clef.textContent = '𝄞';
+      clef.setAttribute('x', staffLeft - 50);
+      clef.setAttribute('y', staffTop + lineSpacing*2 + 6);
+      clef.setAttribute('font-size', 48);
+      clef.setAttribute('fill', '#111');
+      svg.appendChild(clef);
+    }
+
+    // Draw note by label like "F4" or "F#4" or "Bb4".
+    // Drawing rule: determine base natural (letter+octave) -> step index -> y coordinate.
+    // Then draw accidental glyph if present.
+    function drawNote(fullLabel) {
+      drawStaff();
+      if (!fullLabel) return;
+      // Normalize fullLabel if missing octave: the generator always includes octave.
+      const m = fullLabel.match(/^([A-G])([#b♯♭]?)(\d)$/i);
+      if (!m) { console.warn('can\'t parse note', fullLabel); return; }
+        const letter = m[1].toUpperCase();
+        const accChar = m[2] || '';
+        const octave = m[3];
+        const base = letter + octave; // e.g. "F4"
+        const step = stepIndexOf[base];
+        if (typeof step === 'undefined') { console.warn('no step for', base); return; }
+        // bottom line is E4, step 0. Y coordinate:
+        // bottom line y = staffTop + (lines-1)*lineSpacing
+        const bottomLineY = staffTop + (lines - 1) * lineSpacing;
+        // each staff-step (line or space) is lineSpacing/2 distance
+        const y = bottomLineY - step * (lineSpacing / 2);
+
+        const cx = (staffLeft + staffRight) / 2;
+
+        // ledger lines if below or above staff:
+        const topStep = stepIndexOf['F5']; // F5 is top line -> should be 8 relative to E4
+        // ledger lines below (step < 0) at every even step (line positions)
+        if (step < 0) {
+          // draw ledger lines for every line position that lies between step and -2 etc.
+          // start at step = -2 (C4 is -2) up to -? inclusive on even positions.
+          for (let s = -2; s >= step; s -= 2) {
+            const ly = bottomLineY - s * (lineSpacing / 2);
+            drawLedger(cx, ly);
+          }
+        }
+        // ledger lines above (step > topStep)
+        if (step > topStep) {
+          for (let s = topStep + 2; s <= step; s += 2) {
+            const ly = bottomLineY - s * (lineSpacing / 2);
+            drawLedger(cx, ly);
+          }
+        }
+
+        // draw note head (rotated slightly)
+        const note = document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+        note.setAttribute('cx', cx);
+        note.setAttribute('cy', y + 1); // slight nudge
+        note.setAttribute('rx', 12);
+        note.setAttribute('ry', 8.2);
+        note.setAttribute('transform', `rotate(-15 ${cx} ${y})`);
+        note.setAttribute('fill', '#000');
+        svg.appendChild(note);
+
+        // accidental glyph
+        if (accChar) {
+          const acc = document.createElementNS('http://www.w3.org/2000/svg','text');
+          const glyph = (accChar === '#' || accChar === '♯') ? '♯' : '♭';
+          acc.textContent = glyph;
+          acc.setAttribute('x', cx - 28);
+          acc.setAttribute('y', y + 6);
+          acc.setAttribute('font-size', 22);
+          svg.appendChild(acc);
+        }
+
+        // helper title
+        const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+        title.textContent = 'Note: ' + fullLabel;
+        svg.appendChild(title);
+      }
+
+      function drawLedger(cx, y) {
+        const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+        l.setAttribute('x1', cx - 20);
+        l.setAttribute('x2', cx + 20);
+        l.setAttribute('y1', y);
+        l.setAttribute('y2', y);
+        l.setAttribute('stroke', '#111');
+        l.setAttribute('stroke-width', 2);
+        svg.appendChild(l);
+      }
+
+      // Random note generator
+      function pickRandomNote(includeAccidentals) {
+        // pick naturals from C4..A5
+        const natural = naturalsPool[Math.floor(Math.random() * naturalsPool.length)];
+        if (!includeAccidentals) return natural;
+        // sometimes return an accidental variant (choose from accidentalsPool that matches letter+octave)
+        // 50% chance to produce an accidental when allowed
+        if (Math.random() < 0.5) {
+          // pick random accidental from pool
+          return accidentalsPool[Math.floor(Math.random() * accidentalsPool.length)];
+        }
+        return natural;
+      }
+
+
+      // Score helpers
+      function updateScoreUI() {
+        correctEl.textContent = correct;
+        attemptsEl.textContent = attempts;
+        accuracyEl.textContent = attempts ? Math.round(correct / attempts * 100) + '%' : '—';
+      }
+
+      // Set next current note and draw
+      function nextRound() {
+        const includeAcc = accToggle.checked;
+        currentNote = pickRandomNote(includeAcc);
+        drawNote(currentNote);
+        // clear input
+        answerEl.value = '';
+        answerEl.focus();
+      }
+
+      // When the user guesses, we normalise and compare
+      function checkGuess(rawInput) {
+        const n = normalizeInput(rawInput);
+        if (!n) return; // nothing entered
+        // Accept forms:
+        // - If accidentals NOT enabled: compare only first letter (A..G)
+        // - If accidentals enabled: compare letter + optional accidental (ignore octave)
+        // CurrentNote always includes octave (generator includes octave)
+        const currNoOct = currentNote.replace(/\d/g, '').toUpperCase(); // e.g. F# or F or Bb
+        const user = n.replace(/\s+/g,'').replace(/[♯]/g,'#').replace(/[♭]/g,'b');
+
+        attempts++;
+        let isCorrect = false;
+
+        if (!accToggle.checked) {
+          // only letter required: compare first letter of both
+          if (user[0] && user[0] === currNoOct[0]) isCorrect = true;
+        } else {
+          // accidentals allowed: user must supply letter and accidental if present
+          // Normalize enharmonics: accept user 'A#' as matching current 'Bb' if they are enharmonic?
+          // For simplicity we check exact letter+accidental equality OR enharmonic equality by midi
+          const userNormalized = normalizeNoteToMidiString(user);
+          const currNormalized = normalizeNoteToMidiString(currNoOct);
+          if (userNormalized && currNormalized && userNormalized === currNormalized) isCorrect = true;
+        }
+
+        if (isCorrect) correct++;
+        updateScoreUI();
+        // automatically go to next round
+        nextRound();
+      }
+
+      // helper: convert note string like "F#", "Bb", "C" or "F#4" to midi number string (e.g. "66")
+      // Returns null for unparsable.
+      function normalizeNoteToMidiString(noteStr) {
+        // Accept forms like "F#","Fb","F","F#4","Bb5"
+        const m = noteStr.match(/^([A-G])([#b]?)(\d?)$/i);
+        if (!m) return null;
+        const letter = m[1].toUpperCase();
+        const acc = m[2] || '';
+        // if octave provided use it, else attempt to determine octave based on currentNote's octave where appropriate:
+        let octave = m[3] ? parseInt(m[3],10) : null;
+        // If octave is missing, guess an octave that will map within C4-A5 range:
+        if (octave === null) {
+          // default guess: use octave of currentNote (so user can type F# to match F#4)
+          const currOct = currentNote.match(/\d/);
+          octave = currOct ? parseInt(currentNote.match(/\d/)[0],10) : 4;
+        }
+        // MIDI calc: C0 = midi 12. semitone offsets:
+        const semitone = {C:0, D:2, E:4, F:5, G:7, A:9, B:11}[letter];
+        if (semitone === undefined) return null;
+        let val = 12 * (octave + 1) + semitone;
+        if (acc === '#') val += 1;
+        if (acc === 'b' || acc === 'B') val -= 1;
+        return String(val);
+      }
+
+      // Input handlers
+      answerEl.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') {
+          const raw = answerEl.value;
+          checkGuess(raw);
+        }
+      });
+
+      nextBtn.addEventListener('click', nextRound);
+      showBtn.addEventListener('click', () => {
+        if (currentNote) alert('Answer: ' + currentNote);
+      });
+
+      // initialize
+      drawStaff();
+      nextRound();
+      updateScoreUI();
+
+    })();
+</script>
+</body>
+</html>
