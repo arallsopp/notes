@@ -30,6 +30,9 @@ keys.forEach((key) => {
             targetNote = getRandomNoteExcept(targetNote);
             answer.innerText = 'Find: ' + targetNote;
             console.log('Next note:', targetNote);
+            //update the stave
+            drawStave(targetNote);
+
         } else {
             flashKey(e.target, 'red');
             console.log('❌ Wrong. Try again.');
@@ -58,15 +61,6 @@ const renderer = new Renderer(div, Renderer.Backends.SVG);
 renderer.resize(500, 200);
 const context = renderer.getContext();
 
-// Create a stave of width 400 at position 10, 40 on the canvas.
-const stave = new Stave(10, 40, 400);
-
-// Add a clef and time signature.
-stave.addClef("treble").addTimeSignature("4/4");
-
-// Connect it to the rendering context and draw!
-stave.setContext(context).draw();
-
 function createNote(note) {
     console.log('Creating note:', note);
     return [new StaveNote({
@@ -77,18 +71,33 @@ function createNote(note) {
     })]
 }
 
-// Create a voice in 4/4 and add above note(s)
-const voices = [
-   new Voice({
-        numBeats: 4,
-        beatValue: 4,
-    }).addTickables(createNote(targetNote))
-];
+function drawStave(targetNote) {
+    //remove the existing stave so that we can draw a new one
+    context.clearRect(0, 0, 500, 200);
 
-Vex.Flow.Accidental.applyAccidentals(voices, 'C');
-new Formatter().joinVoices(voices).format(voices, 350);
+    // Create a stave of width 400 at position 10, 40 on the canvas.
+    const stave = new Stave(10, 40, 400);
 
-// Render voices.
-voices.forEach(function (v) {
-    v.draw(context, stave);
-});
+    // Add a clef and time signature.
+    stave.addClef("treble").addTimeSignature("4/4");
+
+    // Connect it to the rendering context and draw!
+    stave.setContext(context).draw();
+
+    // Create a voice in 4/4 and add above note(s)
+    const voices = [
+        new Voice({
+            numBeats: 4,
+            beatValue: 4,
+        }).addTickables(createNote(targetNote))
+    ];
+
+    Vex.Flow.Accidental.applyAccidentals(voices, 'C');
+    new Formatter().joinVoices(voices).format(voices, 350);
+
+    // Render voices.
+    voices.forEach(function (v) {
+        v.draw(context, stave);
+    });
+}
+drawStave(targetNote);
