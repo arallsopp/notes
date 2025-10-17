@@ -121,7 +121,8 @@ const context = renderer.getContext();
 
 function createNote(note) {
     console.log('Creating note:', note);
-    let octave = (controls.useBassClef.checked ? "2" : "4"),
+    let octave_offset = (Math.floor(Math.random() * 2)),
+        octave = (controls.useBassClef.checked ? 2 : 4) + octave_offset,
         new_note = note.toLowerCase();
     return [new StaveNote({
         clef: (controls.useBassClef.checked ? "bass" : "treble"),
