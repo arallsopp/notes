@@ -3,17 +3,17 @@ const answer = document.getElementById('answer');
 const controls = {
     showNoteName: document.getElementById('showNoteName'),
     useBassClef: document.getElementById('useBassClef'),
-    allowSharps: document.getElementById('allowSharps')
+    allowSharps: document.getElementById('allowSharps'),
+    allowFlats: document.getElementById('allowFlats')
 };
+let game = {
+    targetNote:null
+}
+
 // Collect all available note names from the keys
 const availableNotes = Array.from(keys).map(k => k.dataset.key);
 
-// Pick a random target note
-let targetNote = getRandomNoteExcept();
-answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
-console.log('Target note:', targetNote);
-
-function getRandomNoteExcept(targetNote) {
+function setTargetNote() {
     let note, randomIndex, sourceArray;
     if(controls.allowSharps.checked){
         sourceArray = availableNotes;
@@ -24,8 +24,10 @@ function getRandomNoteExcept(targetNote) {
     do {
         randomIndex = Math.floor(Math.random() * sourceArray.length);
         note = sourceArray[randomIndex];
-    }while(note === targetNote);
-    return note;
+    }while(note === game.targetNote); //avoid the same note
+
+    game.targetNote = note;
+    console.log('Target note:', game.targetNote);
 }
 
 // Add listeners
@@ -33,15 +35,15 @@ keys.forEach((key) => {
     key.addEventListener('click', (e) => {
         const clickedNote = e.target.dataset.key;
 
-        if (clickedNote === targetNote) {
+        if (clickedNote === game.targetNote) {
             flashKey(e.target, 'green');
             console.log('✅ Correct! It was', clickedNote);
             // Pick a new note
-            targetNote = getRandomNoteExcept(targetNote);
-            answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
-            console.log('Next note:', targetNote);
+            setTargetNote();
+            answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${game.targetNote}` : ' the note');
+
             //update the stave
-            drawStave(targetNote);
+            drawStave();
 
         } else {
             flashKey(e.target, 'red');
@@ -83,7 +85,7 @@ function createNote(note) {
     })]
 }
 
-function drawStave(targetNote) {
+function drawStave() {
     //remove the existing stave so that we can draw a new one
     context.clearRect(0, 0, 500, 200);
 
@@ -102,7 +104,7 @@ function drawStave(targetNote) {
         new Voice({
             numBeats: 4,
             beatValue: 4,
-        }).addTickables(createNote(targetNote))
+        }).addTickables(createNote(game.targetNote))
     ];
 
     Vex.Flow.Accidental.applyAccidentals(voices, 'C');
@@ -113,19 +115,25 @@ function drawStave(targetNote) {
         v.draw(context, stave);
     });
 }
-drawStave(targetNote);
+
+// Pick a random target note
+setupForNewNote();
+drawStave();
+
+function setupForNewNote(){
+    setTargetNote();
+    answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${game.targetNote}` : ' the note');
+    console.log('Next note:', game.targetNote);
+    drawStave();
+}
 
 /* pick a new note if we are changing sharps or clef */
 document.getElementById('useBassClef').addEventListener('change', () => {
-    targetNote = getRandomNoteExcept(targetNote);
-    answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
-    console.log('Next note:', targetNote);
-    drawStave(targetNote);
-
+    setupForNewNote();
 });
 document.getElementById('allowSharps').addEventListener('change', () => {
-    targetNote = getRandomNoteExcept(targetNote);
-    answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
-    console.log('Next note:', targetNote);
-    drawStave(targetNote);
+    setupForNewNote();
+});
+document.getElementById('allowFlats').addEventListener('change', () => {
+    setupForNewNote();
 });
