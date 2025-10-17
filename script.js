@@ -1,12 +1,14 @@
 const keys = document.querySelectorAll('.piano-keys');
 const answer = document.getElementById('answer');
-
+const controls = {
+    showNoteName: document.getElementById('showNoteName')
+};
 // Collect all available note names from the keys
 const availableNotes = Array.from(keys).map(k => k.dataset.key);
 
 // Pick a random target note
 let targetNote = getRandomNoteExcept();
-answer.innerText = 'Find: ' + targetNote;
+answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
 console.log('Target note:', targetNote);
 
 function getRandomNoteExcept(targetNote) {
@@ -28,7 +30,7 @@ keys.forEach((key) => {
             console.log('✅ Correct! It was', clickedNote);
             // Pick a new note
             targetNote = getRandomNoteExcept(targetNote);
-            answer.innerText = 'Find: ' + targetNote;
+            answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
             console.log('Next note:', targetNote);
             //update the stave
             drawStave(targetNote);
@@ -50,7 +52,7 @@ function flashKey(keyEl, color) {
 }
 
 
-/* vexflow score demo */
+/* vexflow score integration */
 const { Renderer, Stave, StaveNote, Voice, Formatter } = Vex.Flow;
 
 // Create an SVG renderer and attach it to the DIV element named "stave".
