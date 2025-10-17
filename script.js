@@ -1,44 +1,46 @@
 const keys = document.querySelectorAll('.piano-keys');
 const keyboard = [
-    {color:"white", note:"C", octave:1},
-    {color:"black", note:"C#", octave:1, altname: "Db"},
-    {color:"white", note:"C", octave:1},
-    {color:"black", note:"C#", octave:1, altname:"Db"},
-    {color:"white", note:"D", octave:1},
-    {color:"black", note:"D#", octave:1, altname:"Eb"},
-    {color:"white", note:"E", octave:1},
-    {color:"white", note:"F", octave:1},
-    {color:"black", note:"F#", octave:1, altname:"Gb"},
-    {color:"white", note:"G", octave:1},
-    {color:"black", note:"G#", octave:1, altname:"Ab"},
-    {color:"white", note:"A", octave:1},
-    {color:"black", note:"A#", octave:1, altname:"Bb"},
-    {color:"white", note:"B", octave:1},
-    {color:"white", note:"C", octave:1},
-    {color:"black", note:"C#", octave:1, altname:"Db"},
-    {color:"white", note:"D", octave:1},
-    {color:"black", note:"D#", octave:1, altname:"Eb"},
-    {color:"white", note:"E", octave:1},
-    {color:"white", note:"F", octave:1},
-    {color:"black", note:"F#", octave:1, altname:"Gb"},
-    {color:"white", note:"G", octave:1},
-    {color:"black", note:"G#", octave:1, altname:"Ab"},
-    {color:"white", note:"A", octave:1},
-    {color:"black", note:"A#", octave:1, altname:"Bb"},
-    {color:"white", note:"B", octave:1},
-    {color:"white", note:"C", octave:1},
-    {color:"black", note:"C#", octave:1, altname:"Db"},
-    {color:"white", note:"D", octave:1},
-    {color:"black", note:"D#", octave:1, altname:"Eb"},
-    {color:"white", note:"E", octave:1}
+    {color:"white", note:"C", octave:3},
+    {color:"black", note:"C#", octave:3, altname: "Db"},
+    {color:"white", note:"C", octave:3},
+    {color:"black", note:"C#", octave:3, altname:"Db"},
+    {color:"white", note:"D", octave:3},
+    {color:"black", note:"D#", octave:3, altname:"Eb"},
+    {color:"white", note:"E", octave:3},
+    {color:"white", note:"F", octave:3},
+    {color:"black", note:"F#", octave:3, altname:"Gb"},
+    {color:"white", note:"G", octave:3},
+    {color:"black", note:"G#", octave:3, altname:"Ab"},
+    {color:"white", note:"A", octave:3},
+    {color:"black", note:"A#", octave:3, altname:"Bb"},
+    {color:"white", note:"B", octave:3},
+    {color:"white", note:"C", octave:4},
+    {color:"black", note:"C#", octave:4, altname:"Db"},
+    {color:"white", note:"D", octave:4},
+    {color:"black", note:"D#", octave:4, altname:"Eb"},
+    {color:"white", note:"E", octave:4},
+    {color:"white", note:"F", octave:4},
+    {color:"black", note:"F#", octave:4, altname:"Gb"},
+    {color:"white", note:"G", octave:4},
+    {color:"black", note:"G#", octave:4, altname:"Ab"},
+    {color:"white", note:"A", octave:4},
+    {color:"black", note:"A#", octave:4, altname:"Bb"},
+    {color:"white", note:"B", octave:4},
+    {color:"white", note:"C", octave:5},
+    {color:"black", note:"C#", octave:5, altname:"Db"},
+    {color:"white", note:"D", octave:5},
+    {color:"black", note:"D#", octave:5, altname:"Eb"},
+    {color:"white", note:"E", octave:5}
     ]
 ;
+
 const answer = document.getElementById('answer');
 const controls = {
     showNoteName: document.getElementById('showNoteName'),
     useBassClef: document.getElementById('useBassClef'),
     allowSharps: document.getElementById('allowSharps'),
-    allowFlats: document.getElementById('allowFlats')
+    allowFlats: document.getElementById('allowFlats'),
+    allowSound: document.getElementById('allowSound')
 };
 let game = {
     targetNote:null
@@ -85,11 +87,21 @@ keys.forEach((key) => {
         const clickedNote = e.target.dataset.key;
         const altName = e.target.dataset.altKey;
 
+        if(controls.allowSound.checked) {
+            playNote(clickedNote + e.target.dataset.octave);
+        }
+
         if (clickedNote === game.targetNote || altName === game.targetNote) {
             flashKey(e.target, 'green');
             console.log('✅ Correct! It was', clickedNote);
 
-            setupForNewNote();
+            if(controls.allowSound.checked) {
+                setTimeout(() => {
+                    setupForNewNote();
+                }, 400); //after the note is played.
+            }else{
+                setupForNewNote();
+            }
 
         } else {
             flashKey(e.target, 'red');
@@ -185,3 +197,55 @@ document.getElementById('allowSharps').addEventListener('change', () => {
 document.getElementById('allowFlats').addEventListener('change', () => {
     setupForNewNote();
 });
+
+
+/* lets try playing the noise  */
+function noteToFrequency(noteStr) {
+    const noteSemitoneMap = {
+        'C': 0,  'C#': 1,
+        'D': 2,  'D#': 3,
+        'E': 4,
+        'F': 5,  'F#': 6,
+        'G': 7,  'G#': 8,
+        'A': 9,  'A#': 10,
+        'B': 11
+    };
+
+    // Extract note and octave from input like "D#5"
+    const match = noteStr.match(/^([A-G]#?)(\d)$/);
+    if (!match) {
+        throw new Error("Invalid note format. Use format like 'C4', 'A#3', etc.");
+    }
+
+    const [, note, octaveStr] = match;
+    const octave = parseInt(octaveStr, 10);
+
+    const semitoneOffsetFromC = noteSemitoneMap[note];
+    const semitoneOffsetFromA4 = (octave - 4) * 12 + (semitoneOffsetFromC - 9); // A4 is the reference
+
+    // Calculate frequency
+    const frequency = 440 * Math.pow(2, semitoneOffsetFromA4 / 12);
+
+    return frequency;
+}
+function playNote(note) {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    const frequency = noteToFrequency(note);
+    if (!frequency) {
+        console.error("Invalid note:", note);
+        return;
+    }
+
+    oscillator.type = 'sine'; // You can change to 'square', 'sawtooth', 'triangle'
+    oscillator.frequency.value = frequency;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1); // Fade out
+    oscillator.stop(audioCtx.currentTime + 1);
+}
