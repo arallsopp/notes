@@ -1,7 +1,8 @@
 const keys = document.querySelectorAll('.piano-keys');
 const answer = document.getElementById('answer');
 const controls = {
-    showNoteName: document.getElementById('showNoteName')
+    showNoteName: document.getElementById('showNoteName'),
+    useBassClef: document.getElementById('useBassClef'),
 };
 // Collect all available note names from the keys
 const availableNotes = Array.from(keys).map(k => k.dataset.key);
@@ -65,9 +66,11 @@ const context = renderer.getContext();
 
 function createNote(note) {
     console.log('Creating note:', note);
+    let octave = (controls.useBassClef.checked ? "2" : "4"),
+        new_note = note.toLowerCase();
     return [new StaveNote({
-        clef: "treble",
-        keys: [note.toLowerCase() + '/4'],
+        clef: (controls.useBassClef.checked ? "bass" : "treble"),
+        keys: [`${new_note}/${octave}`],
         duration: 'w',
         auto_accidentals: true
     })]
@@ -79,9 +82,10 @@ function drawStave(targetNote) {
 
     // Create a stave of width 400 at position 10, 40 on the canvas.
     const stave = new Stave(10, 40, 400);
+    let clef = (controls.useBassClef.checked ? "bass" : "treble");
 
     // Add a clef and time signature.
-    stave.addClef("treble").addTimeSignature("4/4");
+    stave.addClef(clef).addTimeSignature("4/4");
 
     // Connect it to the rendering context and draw!
     stave.setContext(context).draw();
