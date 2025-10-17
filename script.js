@@ -88,12 +88,8 @@ keys.forEach((key) => {
         if (clickedNote === game.targetNote || altName === game.targetNote) {
             flashKey(e.target, 'green');
             console.log('✅ Correct! It was', clickedNote);
-            // Pick a new note
-            setTargetNote();
-            answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${game.targetNote}` : ' the note');
 
-            //update the stave
-            drawStave();
+            setupForNewNote();
 
         } else {
             flashKey(e.target, 'red');
@@ -172,6 +168,7 @@ drawStave();
 
 function setupForNewNote(){
     setTargetNote();
+    answer.style.display = (controls.showNoteName.checked ? 'block' : 'none');
     answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${game.targetNote}` : ' the note');
     console.log('Next note:', game.targetNote);
     drawStave();
