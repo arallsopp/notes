@@ -6,13 +6,12 @@ body {
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins" , sans-serif;
+    height: 100%;
+    background-image:
+            linear-gradient(90deg, #9331d4, rgb(239 5 92 / 70%));
 }
 
 .container {
-    background-image:
-            linear-gradient(90deg, #9331d4, rgb(239 5 92 / 70%));
-    height: 100%;
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -41,6 +40,7 @@ h1{
     list-style: none;
     display: flex;
     justify-content: center;
+    padding:0;
 }
 
 .piano-keys {
