@@ -57,18 +57,22 @@ function setTargetNote() {
     do {
         //pick a note
         randomIndex = Math.floor(Math.random() * sourceArray.length);
-        note = sourceArray[randomIndex].altname || sourceArray[randomIndex].note;
 
-        if(controls.allowFlats.checked && controls.allowSharps.checked){
-            //use the alt sometimes as # and b are ok.
-            if (note.includes("#") && Math.random() >= 0.5){
+        //assign the note
+        note = sourceArray[randomIndex].note;
+
+        if(note.includes("#")) {
+            //we might be expressing this as a # or a b
+            if (controls.allowFlats.checked && controls.allowSharps.checked) {
+                //either # or b is ok, switch randomly
+                if (Math.random() >= 0.5) {
+                    note = sourceArray[randomIndex].altname;
+                }
+            } else if (controls.allowFlats.checked) {
+                //we are only allowing flats
                 note = sourceArray[randomIndex].altname;
             }
-        }else if (note.includes("#") && controls.allowFlats.checked){
-            //always show the alt name as only flats are ok
-            note = sourceArray[randomIndex].altname;
         }
-
     }while(note === game.targetNote); //avoid the same note
 
     game.targetNote = note;
