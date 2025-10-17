@@ -1,4 +1,38 @@
 const keys = document.querySelectorAll('.piano-keys');
+const keyboard = [
+    {color:"white", note:"C", octave:1},
+    {color:"black", note:"C#", octave:1, altname: "Db"},
+    {color:"white", note:"C", octave:1},
+    {color:"black", note:"C#", octave:1, altname:"Db"},
+    {color:"white", note:"D", octave:1},
+    {color:"black", note:"D#", octave:1, altname:"Eb"},
+    {color:"white", note:"E", octave:1},
+    {color:"white", note:"F", octave:1},
+    {color:"black", note:"F#", octave:1, altname:"Gb"},
+    {color:"white", note:"G", octave:1},
+    {color:"black", note:"G#", octave:1, altname:"Ab"},
+    {color:"white", note:"A", octave:1},
+    {color:"black", note:"A#", octave:1, altname:"Bb"},
+    {color:"white", note:"B", octave:1},
+    {color:"white", note:"C", octave:1},
+    {color:"black", note:"C#", octave:1, altname:"Db"},
+    {color:"white", note:"D", octave:1},
+    {color:"black", note:"D#", octave:1, altname:"Eb"},
+    {color:"white", note:"E", octave:1},
+    {color:"white", note:"F", octave:1},
+    {color:"black", note:"F#", octave:1, altname:"Gb"},
+    {color:"white", note:"G", octave:1},
+    {color:"black", note:"G#", octave:1, altname:"Ab"},
+    {color:"white", note:"A", octave:1},
+    {color:"black", note:"A#", octave:1, altname:"Bb"},
+    {color:"white", note:"B", octave:1},
+    {color:"white", note:"C", octave:1},
+    {color:"black", note:"C#", octave:1, altname:"Db"},
+    {color:"white", note:"D", octave:1},
+    {color:"black", note:"D#", octave:1, altname:"Eb"},
+    {color:"white", note:"E", octave:1}
+    ]
+;
 const answer = document.getElementById('answer');
 const controls = {
     showNoteName: document.getElementById('showNoteName'),
@@ -10,20 +44,31 @@ let game = {
     targetNote:null
 }
 
-// Collect all available note names from the keys
-const availableNotes = Array.from(keys).map(k => k.dataset.key);
-
 function setTargetNote() {
     let note, randomIndex, sourceArray;
-    if(controls.allowSharps.checked){
-        sourceArray = availableNotes;
+    if(controls.allowSharps.checked || controls.allowFlats.checked){
+        //include them all
+        sourceArray = keyboard;
     }else{
-        sourceArray = availableNotes.filter(note => !note.includes('#'));
+        //just naturals
+        sourceArray = keyboard.filter(key => !key.note.includes('#'));
     }
     console.log('Source array:', sourceArray);
     do {
+        //pick a note
         randomIndex = Math.floor(Math.random() * sourceArray.length);
-        note = sourceArray[randomIndex];
+        note = sourceArray[randomIndex].altname || sourceArray[randomIndex].note;
+
+        if(controls.allowFlats.checked && controls.allowSharps.checked){
+            //use the alt sometimes as # and b are ok.
+            if (note.includes("#") && Math.random() >= 0.5){
+                note = sourceArray[randomIndex].altname;
+            }
+        }else if (note.includes("#") && controls.allowFlats.checked){
+            //always show the alt name as only flats are ok
+            note = sourceArray[randomIndex].altname;
+        }
+
     }while(note === game.targetNote); //avoid the same note
 
     game.targetNote = note;
@@ -34,8 +79,9 @@ function setTargetNote() {
 keys.forEach((key) => {
     key.addEventListener('click', (e) => {
         const clickedNote = e.target.dataset.key;
+        const altName = e.target.dataset.altKey;
 
-        if (clickedNote === game.targetNote) {
+        if (clickedNote === game.targetNote || altName === game.targetNote) {
             flashKey(e.target, 'green');
             console.log('✅ Correct! It was', clickedNote);
             // Pick a new note
