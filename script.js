@@ -3,6 +3,7 @@ const answer = document.getElementById('answer');
 const controls = {
     showNoteName: document.getElementById('showNoteName'),
     useBassClef: document.getElementById('useBassClef'),
+    allowSharps: document.getElementById('allowSharps')
 };
 // Collect all available note names from the keys
 const availableNotes = Array.from(keys).map(k => k.dataset.key);
@@ -13,10 +14,16 @@ answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` :
 console.log('Target note:', targetNote);
 
 function getRandomNoteExcept(targetNote) {
-    let note, randomIndex;
+    let note, randomIndex, sourceArray;
+    if(controls.allowSharps.checked){
+        sourceArray = availableNotes;
+    }else{
+        sourceArray = availableNotes.filter(note => !note.includes('#'));
+    }
+    console.log('Source array:', sourceArray);
     do {
-        randomIndex = Math.floor(Math.random() * availableNotes.length);
-        note = availableNotes[randomIndex];
+        randomIndex = Math.floor(Math.random() * sourceArray.length);
+        note = sourceArray[randomIndex];
     }while(note === targetNote);
     return note;
 }
@@ -107,3 +114,18 @@ function drawStave(targetNote) {
     });
 }
 drawStave(targetNote);
+
+/* pick a new note if we are changing sharps or clef */
+document.getElementById('useBassClef').addEventListener('change', () => {
+    targetNote = getRandomNoteExcept(targetNote);
+    answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
+    console.log('Next note:', targetNote);
+    drawStave(targetNote);
+
+});
+document.getElementById('allowSharps').addEventListener('change', () => {
+    targetNote = getRandomNoteExcept(targetNote);
+    answer.innerText = 'Find' + (controls.showNoteName.checked ? `: ${targetNote}` : ' the note');
+    console.log('Next note:', targetNote);
+    drawStave(targetNote);
+});
