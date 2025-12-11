@@ -34,3 +34,30 @@ body{
 .active { background: #00ccff !important; }
 .active.hit { background: #ff0000 !important; }
 .label {margin-right: 4px; }
+
+
+select, input  {
+    color: #cecece;
+    cursor: pointer;
+    background: #515151;
+    border:none;
+}
+
+select:hover {
+    background-color: transparent;
+    color: white;
+}
+
+select option {
+    color: gray;
+    width: 310px;
+    padding: 10px 15px;
+    height: 20px;
+    cursor: pointer;
+}
+
+select option:hover {
+    padding-left: 25px;
+    width: 270px;
+    color: #EC6F66;
+}
