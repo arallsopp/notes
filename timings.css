@@ -1,0 +1,13 @@
+
+#controls { margin-bottom: 16px; }
+#grid { display: grid; gap: 4px; margin-top: 16px; }
+.cell {
+    width: 26px; height: 26px;
+    background: #ddd;
+    border-radius: 4px;
+    transition: background 0.1s ease;
+}
+.hit { background: #777; }
+.active { background: #00ccff !important; }
+.active.hit { background: #00ff00 !important; }
+.label { font-size: 14px; margin-right: 4px; }
