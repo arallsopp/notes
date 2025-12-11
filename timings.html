@@ -2,133 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Timings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythm Grid</title>
+    <style>
+        #controls { margin-bottom: 16px; }
+        #grid { display: grid; gap: 4px; margin-top: 16px; }
+        .cell {
+            width: 26px; height: 26px;
+            background: #ddd;
+            border-radius: 4px;
+            transition: background 0.1s ease;
+        }
+        .hit { background: #777; }
+        .active { background: #00ccff !important; }
+        .active.hit { background: #00ff00 !important; }
+        .label { font-size: 14px; margin-right: 4px; }
+    </style>
 </head>
 <body>
+
+<div id="controls">
+    <label class="label">Left hand:</label>
+    <select id="leftSelect">
+        <option value="1">Quarter Notes (1)</option>
+        <option value="2">8ths (2)</option>
+        <option value="3">Triplets (3)</option>
+        <option value="4" selected>16ths (4)</option>
+        <option value="5">Quintuplets (5)</option>
+        <option value="6">6-tuplets (6)</option>
+    </select>
+
+    <label class="label" style="margin-left:12px;">Right hand:</label>
+    <select id="rightSelect">
+        <option value="1">Quarter Notes (1)</option>
+        <option value="2">8ths (2)</option>
+        <option value="3" selected>Triplets (3)</option>
+        <option value="4">16ths (4)</option>
+        <option value="5">Quintuplets (5)</option>
+        <option value="6">6-tuplets (6)</option>
+    </select>
+
+    <label class="label" style="margin-left:12px;">Tempo:</label>
+    <input id="tempo" type="number" value="30" style="width:60px"> bpm
+
+    <button id="playBtn" style="margin-left:12px;">Play</button>
+</div>
+
 <div id="grid"></div>
-<button id="playBtn">Play</button>
-<input id="tempo" type="number" value="120"> bpm
-<style>
-    #grid {
-        display: grid;
-        gap: 4px;
-    }
 
-    .row {
-        display: contents;
-    }
-
-    .cell {
-        width: 24px;
-        height: 24px;
-        background: #ddd;
-        border-radius: 4px;
-        transition: background 0.1s;
-    }
-
-    .cell.hit      { background: #999; }
-    .cell.active   { background: #00ccff; }
-    .cell.active.hit { background: #00ff00; }
-
-</style>
 <script>
-    const layers = [
-        { name: "Beats", divisions: 1 },
-        { name: "16ths", divisions: 4 },
-        { name: "Triplets", divisions: 3 }
-    ];
-
-    const grid = document.getElementById("grid");
-    const tempoInput = document.getElementById("tempo");
-    const playBtn = document.getElementById("playBtn");
-
-    const lcmValue = getLCM(layers);
-    console.log("Grid size:", lcmValue); // should be 12
-
-    // Build hit map for each layer
-    const expanded = layers.map(layer => {
-        return {
-            name: layer.name,
-            divisions: layer.divisions,
-            hits: expandLayerToGrid(layer, lcmValue)
-        };
-    });
-
-    // Create grid DOM
-    grid.style.gridTemplateColumns = `repeat(${lcmValue}, 28px)`;
-    grid.style.gridTemplateRows = `repeat(${layers.length}, 28px)`;
-
-    const cellRefs = [];
-
-    layers.forEach((layer, rowIndex) => {
-        const row = [];
-        for (let col = 0; col < lcmValue; col++) {
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
-            if (expanded[rowIndex].hits.includes(col)) {
-                cell.classList.add("hit");
-            }
-            grid.appendChild(cell);
-            row.push(cell);
-        }
-        cellRefs.push(row);
-    });
-
-    // Playback engine
-    let currentStep = 0;
-    let timer = null;
-
-    function advanceStep() {
-        // Clear previous highlight
-        cellRefs.flat().forEach(c => c.classList.remove("active"));
-
-        // Highlight active column
-        for (let row = 0; row < layers.length; row++) {
-            const cell = cellRefs[row][currentStep];
-            cell.classList.add("active");
-
-            if (expanded[row].hits.includes(currentStep)) {
-                // This is where you'd play a sound
-                console.log("Tick:", layers[row].name);
-            }
-        }
-
-        currentStep = (currentStep + 1) % lcmValue;
-    }
-
-    function startPlayback() {
-        const bpm = parseInt(tempoInput.value, 10);
-        const interval = (60000 / bpm) / (lcmValue / layers[0].divisions);
-        // For 4/4 with beat divisions=1, lcm=12 → interval = 60000/bpm/12
-
-        if (timer) clearInterval(timer);
-        currentStep = 0;
-        advanceStep();
-        timer = setInterval(advanceStep, interval);
-    }
+    // ------------------------------------------------------------
+    // Utility: GCD / LCM
+    // ------------------------------------------------------------
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+    function lcm(a, b) { return (a * b) / gcd(a, b); }
 
-    function lcm(a, b) {
-        return (a * b) / gcd(a, b);
-    }
-
-    // Given an array of layer objects:
-    function getLCM(layers) {
-        return layers.map(l => l.divisions).reduce((acc, val) => lcm(acc, val));
-    }
-
-    function expandLayerToGrid(layer, gridSize) {
-        const step = gridSize / layer.divisions;
+    // ------------------------------------------------------------
+    // Expand pattern to grid hits
+    // divisions = number of hits per beat
+    // gridSize = LCM
+    // ------------------------------------------------------------
+    function expand(divisions, gridSize) {
         const hits = [];
-        for (let i = 0; i < layer.divisions; i++) {
+        const step = gridSize / divisions;
+        for (let i = 0; i < divisions; i++) {
             hits.push(Math.round(i * step));
         }
         return hits;
     }
 
+    // ------------------------------------------------------------
+    // WebAudio: two different “bops”
+    // ------------------------------------------------------------
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playBop(freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.frequency.value = freq;
+        gain.gain.value = 0.9;
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+        osc.stop(audioCtx.currentTime + 0.12);
+    }
+
+    // Left hand = 240Hz bop
+    // Right hand = 400Hz bop
+
+    // ------------------------------------------------------------
+    // Main grid engine
+    // ------------------------------------------------------------
+    const grid = document.getElementById("grid");
+    const leftSelect = document.getElementById("leftSelect");
+    const rightSelect = document.getElementById("rightSelect");
+    const tempoInput = document.getElementById("tempo");
+    const playBtn = document.getElementById("playBtn");
+
+    let cellRefs = [];
+    let timer = null;
+    let currentStep = 0;
+
+    // ------------------------------------------------------------
+    // Build grid when dropdowns change
+    // ------------------------------------------------------------
+    function rebuildGrid() {
+        const leftDiv = parseInt(leftSelect.value, 10);
+        const rightDiv = parseInt(rightSelect.value, 10);
+
+        const gridSize = lcm(leftDiv, rightDiv);  // LCM per beat
+
+        const leftHits = expand(leftDiv, gridSize);
+        const rightHits = expand(rightDiv, gridSize);
+
+        // Build DOM grid
+        grid.innerHTML = "";
+        grid.style.gridTemplateColumns = `repeat(${gridSize}, 28px)`;
+        grid.style.gridTemplateRows = `repeat(2, 28px)`;
+
+        cellRefs = [[], []];
+
+        // Row 0 = left hand, Row 1 = right hand
+        [leftHits, rightHits].forEach((hits, rowIdx) => {
+            for (let col = 0; col < gridSize; col++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                if (hits.includes(col)) cell.classList.add("hit");
+                grid.appendChild(cell);
+                cellRefs[rowIdx].push(cell);
+            }
+        });
+
+        return { gridSize, leftHits, rightHits };
+    }
+
+    // ------------------------------------------------------------
+    // Playback loop
+    // ------------------------------------------------------------
+    function startPlayback() {
+        const bpm = parseInt(tempoInput.value, 10);
+
+        const { gridSize, leftHits, rightHits } = rebuildGrid();
+
+        if (timer) clearInterval(timer);
+        currentStep = 0;
+
+        const interval = (60000 / bpm) / gridSize; // beat subdivided into gridSize parts
+
+        function step() {
+            // clear all highlights
+            cellRefs.flat().forEach(c => c.classList.remove("active"));
+
+            // play left hand?
+            if (leftHits.includes(currentStep)) {
+                playBop(240);
+                cellRefs[0][currentStep].classList.add("active");
+            }
+
+            // play right hand?
+            if (rightHits.includes(currentStep)) {
+                playBop(400);
+                cellRefs[1][currentStep].classList.add("active");
+            }
+
+            currentStep = (currentStep + 1) % gridSize;
+        }
+
+        step();
+        timer = setInterval(step, interval);
+    }
+
+    // Auto rebuild grid initially
+    rebuildGrid();
+
+    // Rebuild when dropdowns change
+    leftSelect.addEventListener("change", rebuildGrid);
+    rightSelect.addEventListener("change", rebuildGrid);
 
     playBtn.addEventListener("click", startPlayback);
-
 </script>
+
 </body>
 </html>
