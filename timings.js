@@ -87,8 +87,12 @@ function rebuildGrid() {
     return { gridSize, leftHits, rightHits };
 }
 
-function togglePlayback() {
-    if (timer){
+function togglePlayback(state) {
+    if (typeof state == "undefined") {
+        state = !timer;
+    }
+
+    if (!state){
         clearInterval(timer);
         timer = null;
     }else {
@@ -135,7 +139,14 @@ function startPlayback() {
 rebuildGrid();
 
 // Rebuild when dropdowns change
-leftSelect.addEventListener("change", rebuildGrid);
-rightSelect.addEventListener("change", rebuildGrid);
+leftSelect.addEventListener("change", function(){
+    rebuildGrid();
+    togglePlayback(false);
+});
+
+rightSelect.addEventListener("change", function(){
+    rebuildGrid();
+    togglePlayback(false);
+});
 tempoInput.addEventListener("change", startPlayback);
 playBtn.addEventListener("click", togglePlayback);

@@ -1,6 +1,9 @@
 body{
     background:black;
+    color:white;
+    font-family:sans-serif;
 }
+
 #controls { margin-bottom: 16px; }
 
 #gridContainer {
