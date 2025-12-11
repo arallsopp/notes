@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Timings</title>
+</head>
+<body>
+<div id="grid"></div>
+<button id="playBtn">Play</button>
+<input id="tempo" type="number" value="120"> bpm
+<style>
+    #grid {
+        display: grid;
+        gap: 4px;
+    }
+
+    .row {
+        display: contents;
+    }
+
+    .cell {
+        width: 24px;
+        height: 24px;
+        background: #ddd;
+        border-radius: 4px;
+        transition: background 0.1s;
+    }
+
+    .cell.hit      { background: #999; }
+    .cell.active   { background: #00ccff; }
+    .cell.active.hit { background: #00ff00; }
+
+</style>
+<script>
+    const layers = [
+        { name: "Beats", divisions: 1 },
+        { name: "16ths", divisions: 4 },
+        { name: "Triplets", divisions: 3 }
+    ];
+
+    const grid = document.getElementById("grid");
+    const tempoInput = document.getElementById("tempo");
+    const playBtn = document.getElementById("playBtn");
+
+    const lcmValue = getLCM(layers);
+    console.log("Grid size:", lcmValue); // should be 12
+
+    // Build hit map for each layer
+    const expanded = layers.map(layer => {
+        return {
+            name: layer.name,
+            divisions: layer.divisions,
+            hits: expandLayerToGrid(layer, lcmValue)
+        };
+    });
+
+    // Create grid DOM
+    grid.style.gridTemplateColumns = `repeat(${lcmValue}, 28px)`;
+    grid.style.gridTemplateRows = `repeat(${layers.length}, 28px)`;
+
+    const cellRefs = [];
+
+    layers.forEach((layer, rowIndex) => {
+        const row = [];
+        for (let col = 0; col < lcmValue; col++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            if (expanded[rowIndex].hits.includes(col)) {
+                cell.classList.add("hit");
+            }
+            grid.appendChild(cell);
+            row.push(cell);
+        }
+        cellRefs.push(row);
+    });
+
+    // Playback engine
+    let currentStep = 0;
+    let timer = null;
+
+    function advanceStep() {
+        // Clear previous highlight
+        cellRefs.flat().forEach(c => c.classList.remove("active"));
+
+        // Highlight active column
+        for (let row = 0; row < layers.length; row++) {
+            const cell = cellRefs[row][currentStep];
+            cell.classList.add("active");
+
+            if (expanded[row].hits.includes(currentStep)) {
+                // This is where you'd play a sound
+                console.log("Tick:", layers[row].name);
+            }
+        }
+
+        currentStep = (currentStep + 1) % lcmValue;
+    }
+
+    function startPlayback() {
+        const bpm = parseInt(tempoInput.value, 10);
+        const interval = (60000 / bpm) / (lcmValue / layers[0].divisions);
+        // For 4/4 with beat divisions=1, lcm=12 → interval = 60000/bpm/12
+
+        if (timer) clearInterval(timer);
+        currentStep = 0;
+        advanceStep();
+        timer = setInterval(advanceStep, interval);
+    }
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+    function lcm(a, b) {
+        return (a * b) / gcd(a, b);
+    }
+
+    // Given an array of layer objects:
+    function getLCM(layers) {
+        return layers.map(l => l.divisions).reduce((acc, val) => lcm(acc, val));
+    }
+
+    function expandLayerToGrid(layer, gridSize) {
+        const step = gridSize / layer.divisions;
+        const hits = [];
+        for (let i = 0; i < layer.divisions; i++) {
+            hits.push(Math.round(i * step));
+        }
+        return hits;
+    }
+
+
+    playBtn.addEventListener("click", startPlayback);
+
+</script>
+</body>
+</html>
