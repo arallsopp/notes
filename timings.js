@@ -149,4 +149,6 @@ rightSelect.addEventListener("change", function(){
     togglePlayback(false);
 });
 tempoInput.addEventListener("change", startPlayback);
-playBtn.addEventListener("click", togglePlayback);
+playBtn.addEventListener("click", function(){
+    togglePlayback()
+});

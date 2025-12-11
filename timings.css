@@ -1,3 +1,4 @@
+label,input,button,select{font-size: 5vw;}
 body{
     background:black;
     color:white;
@@ -25,7 +26,6 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
     background: #ffffff29;
     border-radius: 4px;
     transition: background 0.1s ease;
@@ -33,4 +33,4 @@ body{
 .hit { background: #ff000070; }
 .active { background: #00ccff !important; }
 .active.hit { background: #ff0000 !important; }
-.label { font-size: 14px; margin-right: 4px; }
+.label {margin-right: 4px; }
