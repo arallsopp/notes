@@ -68,8 +68,8 @@ function rebuildGrid() {
 
     // Build DOM grid
     grid.innerHTML = "";
-    grid.style.gridTemplateColumns = `repeat(${gridSize}, 28px)`;
-    grid.style.gridTemplateRows = `repeat(2, 28px)`;
+    grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(2, 1fr)`;
 
     cellRefs = [[], []];
 
@@ -87,6 +87,14 @@ function rebuildGrid() {
     return { gridSize, leftHits, rightHits };
 }
 
+function togglePlayback() {
+    if (timer){
+        clearInterval(timer);
+        timer = null;
+    }else {
+        startPlayback();
+    }
+}
 // ------------------------------------------------------------
 // Playback loop
 // ------------------------------------------------------------
@@ -129,5 +137,5 @@ rebuildGrid();
 // Rebuild when dropdowns change
 leftSelect.addEventListener("change", rebuildGrid);
 rightSelect.addEventListener("change", rebuildGrid);
-
-playBtn.addEventListener("click", startPlayback);
+tempoInput.addEventListener("change", startPlayback);
+playBtn.addEventListener("click", togglePlayback);
