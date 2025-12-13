@@ -6,7 +6,9 @@ const FILES = [
     "timings.js",
     "manifest.webmanifest",
     "images/icon-192.png",
-    "images/icon-512.png"
+    "images/icon-512.png",
+    "images/sam.svg",
+    "images/cloud.svg"
 ];
 
 self.addEventListener("install", event => {
