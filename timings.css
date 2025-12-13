@@ -212,4 +212,18 @@ select option:hover {
 #eyes {
   transform-origin: center;
   transform-box: fill-box;
+  transition: transform 80ms linear;
+}
+#sam {
+    position:absolute;
+    bottom:0;
+    width: 100vw;
+    height: auto;
+    display: none;
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    #sam {
+        display: block;
+    }
 }
