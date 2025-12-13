@@ -187,7 +187,7 @@ function startPlayback() {
             cellRefs[1][currentStep].classList.add("active");
         }
 
-        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep),currentStep == 0);
+        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep),currentStep === 0);
 
         currentStep = (currentStep + 1) % gridSize;
     }
@@ -228,7 +228,8 @@ window.addEventListener("load", () => {
 });
 
 /* eyes anim */
-let eyes = document.getElementById("eyes");
+let eyes = document.getElementById("eyes"),
+    brows = document.getElementById("brows");
 
 const EYE_POSITIONS = {
     left:  "translateX(-2.5vw)",
@@ -247,7 +248,11 @@ function bopEyes(leftBeat,rightBeat, zeroBeat) {
         eyes.style.transform = EYE_POSITIONS.right;
     }
 
-    if (zeroBeat) {}
+    if (zeroBeat) {
+        brows.style.transform = "translateY(-2vw)"
+    }else{
+        brows.style.transform = "translateY(0)"
+    }
 }
 
 document.addEventListener("visibilitychange", () => {

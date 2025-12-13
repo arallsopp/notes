@@ -209,7 +209,7 @@ select option:hover {
 }
 
 /* Eyes anim */
-#eyes {
+#eyes, #brows {
   transform-origin: center;
   transform-box: fill-box;
   transition: transform 80ms linear;
