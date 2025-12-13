@@ -91,7 +91,7 @@ select option:hover {
 #svg-side {
     position: absolute;
     left: -100%;
-    top: 40%;
+    top: 30%;
     width: 60%;
     max-width: 500px;
     animation: slideInLeft 1s ease-out forwards;
@@ -114,5 +114,54 @@ select option:hover {
 @keyframes slideInLeft {
     to {
         left: 33%;
+    }
+}
+
+/* Iris transition */
+#clip-layer {
+    position: absolute;
+    inset: 0;
+    background: #4dbbf4;
+
+    clip-path: circle(150vmax at 50% 50%);
+}
+
+/* Trigger close */
+#loading-screen.closing #clip-layer {
+    animation: irisClip 0.9s ease-in forwards;
+}
+
+@keyframes irisClip {
+    to {
+        clip-path: circle(0px at 50% 50%);
+    }
+}
+
+/* Visible ring overlay */
+#iris-ring {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+
+    border-radius: 50%;
+    border: 15vw solid white;
+
+    width: 150vmax;
+    height: 150vmax;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+
+/* Triggered state */
+#loading-screen.closing #iris {
+    animation: irisClose 0.9s ease-in forwards;
+}
+
+@keyframes irisClose {
+    to {
+        transform: translate(-50%, -50%) scale(0);
     }
 }

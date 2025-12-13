@@ -153,14 +153,15 @@ playBtn.addEventListener("click", function(){
     togglePlayback()
 });
 
+//load animation
 window.addEventListener("load", () => {
     setTimeout(() => {
-        document.getElementById("loading-screen").style.opacity = "0";
-        document.getElementById("loading-screen").style.transition = "opacity 0.5s";
+        const screen = document.getElementById("loading-screen");
+        screen.classList.add("closing");
 
         setTimeout(() => {
-            document.getElementById("loading-screen").remove();
+            screen.remove();
             document.getElementById("app").classList.remove("hidden");
-        }, 500);
-    }, 1500); // length of animation
+        }, 900);
+    }, 1400);
 });
