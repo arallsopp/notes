@@ -55,7 +55,11 @@
 </div>
 <script src="timings.js"></script>
 <script>
-    if ("serviceWorker" in navigator) {
+    // register service worker if we open
+    if (
+        "serviceWorker" in navigator &&
+        (location.protocol === "https:" || location.hostname === "localhost")
+    ) {
         navigator.serviceWorker.register("service-worker.js");
     }
 </script>
