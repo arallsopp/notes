@@ -91,7 +91,7 @@ select option:hover {
 #svg-side {
     position: absolute;
     left: -100%;
-    bottom: 20%;
+    top: 40%;
     width: 60%;
     max-width: 500px;
     animation: slideInLeft 1s ease-out forwards;
