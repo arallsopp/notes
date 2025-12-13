@@ -8,7 +8,8 @@ const FILES = [
     "images/icon-192.png",
     "images/icon-512.png",
     "images/sam.svg",
-    "images/cloud.svg"
+    "images/cloud.svg",
+    "fonts/RockSalt-Regular.ttf"
 ];
 
 self.addEventListener("install", event => {

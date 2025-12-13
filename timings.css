@@ -1,9 +1,22 @@
-label,input,button,select{font-size: 10vw;}
-body{
+@font-face {
+    font-family: 'RockSalt';
+    src: url('fonts/RockSalt-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'RockSalt', sans-serif;
     background: #4dbbf4;
     color: #000;
-    font-family:sans-serif;
     text-align: center;
+}
+label,input,button,select{
+    font-family: 'RockSalt', sans-serif;
+    font-size: 6vw;
+}
+input,select{
+    padding:0 10px;
 }
 
 #controls { margin-bottom: 16px; }
