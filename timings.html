@@ -5,7 +5,12 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
     <meta property="og:description" content="A sample timing tool to help me learn rhythms">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rhythm Grid">
     <title>Rhythm Grid</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
     <link rel="stylesheet" href="timings.css">
 </head>
 
@@ -39,5 +44,10 @@
 <div id="grid"></div>
 </div>
 <script src="timings.js"></script>
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+    }
+</script>
 </body>
 </html>
