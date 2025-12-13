@@ -231,8 +231,8 @@ window.addEventListener("load", () => {
 let eyes = document.getElementById("eyes");
 
 const EYE_POSITIONS = {
-    left:  "translateX(-6px)",
-    right: "translateX(6px)",
+    left:  "translateX(-2.5vw)",
+    right: "translateX(2.5vw)",
     center:"translateX(0)"
 };
 
