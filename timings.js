@@ -21,15 +21,46 @@ function expand(divisions, gridSize) {
 // ------------------------------------------------------------
 // WebAudio: two different “bops”
 // ------------------------------------------------------------
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = null;
+let masterGain = null;
+let lastAudioTick = 0;
+
+function audioHeartbeat() {
+    const ctx = getAudioContext();
+    if (ctx.state !== "running") return;
+
+    const osc = ctx.createOscillator();
+    osc.frequency.value = 1; // sub-audible
+    osc.connect(masterGain);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.01);
+
+    lastAudioTick = performance.now();
+}
+
+
+function showAudioRecoveryUI() {
+    document.getElementById("audio-restart").hidden = false;
+}
+
+function hideAudioRecoveryUI() {
+    document.getElementById("audio-restart").hidden = true;
+}
 
 function getAudioContext() {
-    if (!audioCtx) {
+    if (!audioCtx || audioCtx.state === "closed") {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
     }
     return audioCtx;
 }
 
+function handleFocusReturn() {
+    if (audioCtx && audioCtx.state !== "running") {
+        showAudioRecoveryUI();
+    }
+}
 function unlockAudio() {
     const ctx = getAudioContext();
 
@@ -37,14 +68,19 @@ function unlockAudio() {
         ctx.resume();
     }
 
-    // Play a silent buffer to fully unlock
-    const buffer = ctx.createBuffer(1, 1, 22050);
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-    source.start(0);
-}
+    // Hard reset if needed
+    if (ctx.state === "closed") {
+        audioCtx = null;
+        getAudioContext();
+    }
 
+    // Silent unlock pulse
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(masterGain);
+    src.start();
+}
 function playBop(freq) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -189,9 +225,13 @@ window.addEventListener("load", () => {
     }, 1400);
 });
 
-//unlock audio on page focus (required for PWA stability)
 document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-        unlockAudio();
-    }
+    if (!document.hidden) handleFocusReturn();
+});
+
+window.addEventListener("focus", handleFocusReturn);
+
+document.getElementById("audio-restart").addEventListener("click", () => {
+    unlockAudio();
+    hideAudioRecoveryUI();
 });
