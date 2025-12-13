@@ -187,6 +187,8 @@ function startPlayback() {
             cellRefs[1][currentStep].classList.add("active");
         }
 
+        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep));
+
         currentStep = (currentStep + 1) % gridSize;
     }
 
@@ -224,6 +226,27 @@ window.addEventListener("load", () => {
         }, 900);
     }, 1400);
 });
+
+/* eyes anim */
+let eyes = document.getElementById("eyes");
+
+const EYE_POSITIONS = {
+    left:  "translateX(-6px)",
+    right: "translateX(6px)",
+    center:"translateX(0)"
+};
+
+function bopEyes(leftBeat,rightBeat) {
+    if (!eyes) return;
+
+    if (leftBeat && rightBeat) {
+        eyes.style.transform = EYE_POSITIONS.center;
+    } else if (leftBeat) {
+        eyes.style.transform = EYE_POSITIONS.left;
+    } else if (rightBeat) {
+        eyes.style.transform = EYE_POSITIONS.right;
+    }
+}
 
 document.addEventListener("visibilitychange", () => {
     if (!document.hidden) handleFocusReturn();
