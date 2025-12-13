@@ -1,8 +1,9 @@
-label,input,button,select{font-size: 5vw;}
+label,input,button,select{font-size: 10vw;}
 body{
-    background:black;
-    color:white;
+    background: #4dbbf4;
+    color: #000;
     font-family:sans-serif;
+    text-align: center;
 }
 
 #controls { margin-bottom: 16px; }
@@ -22,15 +23,15 @@ body{
     box-sizing: border-box;
     aspect-ratio: 1 / 1;    /* optional: keep square cells */
     width: 100%;
-    border: 3px solid #000000;
+    border: 2px solid #180101;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff29;
-    border-radius: 4px;
+    background: #fdcf08;
+    border-radius: 13px;
     transition: background 0.1s ease;
 }
-.hit { background: #ff000070; }
+.hit {background: #9a302b;}
 .active { background: #00ccff !important; }
 .active.hit { background: #ff0000 !important; }
 .label {margin-right: 4px; }
@@ -41,6 +42,7 @@ select, input  {
     cursor: pointer;
     background: #515151;
     border:none;
+    border-radius:0.2em;
 }
 
 select:hover {
@@ -82,6 +84,7 @@ select option:hover {
 #svg-bottom {
     position: absolute;
     bottom: -100%;
+    left:0;
     width: 100%;
     animation: slideUp 1.1s ease-out forwards;
     z-index: 2; /* IN FRONT */
@@ -122,11 +125,10 @@ select option:hover {
     position: absolute;
     inset: 0;
     background: #4dbbf4;
-
     clip-path: circle(150vmax at 50% 50%);
+    animation: none;
 }
 
-/* Trigger close */
 #loading-screen.closing #clip-layer {
     animation: irisClip 0.9s ease-in forwards;
 }
@@ -137,31 +139,27 @@ select option:hover {
     }
 }
 
-/* Visible ring overlay */
 #iris-ring {
     position: absolute;
-    inset: 0;
-    pointer-events: none;
-
-    border-radius: 50%;
-    border: 15vw solid white;
-
-    width: 150vmax;
-    height: 150vmax;
     top: 50%;
     left: 50%;
+    width: 300vmax;
+    height: 300vmax;
+    border-radius: 50%;
+    border: 50px solid white;
     transform: translate(-50%, -50%);
+    pointer-events: none;
     z-index: 10;
 }
 
-
-/* Triggered state */
-#loading-screen.closing #iris {
-    animation: irisClose 0.9s ease-in forwards;
+#loading-screen.closing #iris-ring {
+    animation: irisRing 0.9s ease-in forwards;
 }
 
-@keyframes irisClose {
+@keyframes irisRing {
     to {
-        transform: translate(-50%, -50%) scale(0);
+        width: 0;
+        height: 0;
+        border-width: 0;
     }
 }
