@@ -25,7 +25,7 @@
 
 <div id="app" class="hidden">
     <div id="controls">
-        <label class="label">Play:</label>
+        <label class="label" for="leftSelect">Play:</label>
         <select id="leftSelect">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -34,7 +34,7 @@
             <option value="5">5</option>
             <option value="6">6</option>
         </select>
-        <label class="label" style="margin-left:12px;">against: </label>
+        <label class="label" for="rightSelect" style="margin-left:12px;">against: </label>
         <select id="rightSelect">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -44,7 +44,7 @@
             <option value="6">6</option>
         </select>
         <br/>
-        <label class="label">Tempo:</label>
+        <label class="label" for="tempo">Tempo:</label>
         <input id="tempo" type="number" value="30" style="width:2.5em"> bpm
 
         <button id="playBtn" style="margin-left:12px;">Play</button>
