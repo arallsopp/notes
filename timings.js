@@ -152,3 +152,15 @@ tempoInput.addEventListener("change", startPlayback);
 playBtn.addEventListener("click", function(){
     togglePlayback()
 });
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("loading-screen").style.opacity = "0";
+        document.getElementById("loading-screen").style.transition = "opacity 0.5s";
+
+        setTimeout(() => {
+            document.getElementById("loading-screen").remove();
+            document.getElementById("app").classList.remove("hidden");
+        }, 500);
+    }, 1500); // length of animation
+});

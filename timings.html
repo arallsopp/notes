@@ -15,33 +15,40 @@
 </head>
 
 <body>
-<div id="controls">
-    <label class="label">Play:</label>
-    <select id="leftSelect">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-    </select>
-    <label class="label" style="margin-left:12px;">against: </label>
-    <select id="rightSelect">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3" selected>3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-    </select>
-    <br/>
-    <label class="label">Tempo:</label>
-    <input id="tempo" type="number" value="30" style="width:1.5em"> bpm
-
-    <button id="playBtn" style="margin-left:12px;">Play</button>
+<div id="loading-screen">
+    <img src="images/sam.svg" id="svg-bottom" alt="">
+    <img src="images/cloud.svg" id="svg-side" alt="">
 </div>
-<div id="grid-container">
-<div id="grid"></div>
+
+<div id="app" class="hidden">
+    <div id="controls">
+        <label class="label">Play:</label>
+        <select id="leftSelect">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+        <label class="label" style="margin-left:12px;">against: </label>
+        <select id="rightSelect">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+        <br/>
+        <label class="label">Tempo:</label>
+        <input id="tempo" type="number" value="30" style="width:1.5em"> bpm
+
+        <button id="playBtn" style="margin-left:12px;">Play</button>
+    </div>
+    <div id="grid-container">
+    <div id="grid"></div>
+    </div>
 </div>
 <script src="timings.js"></script>
 <script>
