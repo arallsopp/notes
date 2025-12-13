@@ -222,7 +222,7 @@ select option:hover {
     display: none;
 }
 
-@media (max-width: 768px) and (orientation: portrait) {
+@media (max-aspect-ratio: 595/1078) {
     #sam {
         display: block;
     }
