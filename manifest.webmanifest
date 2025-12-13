@@ -1,6 +1,6 @@
 {
-  "name": "Timing Helper",
-  "short_name": "Timing",
+  "name": "Rhythm Helper",
+  "short_name": "Rhythms",
   "start_url": "timings.html",
   "display": "standalone",
   "background_color": "#ffffff",
