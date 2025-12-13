@@ -21,7 +21,29 @@ function expand(divisions, gridSize) {
 // ------------------------------------------------------------
 // WebAudio: two different “bops”
 // ------------------------------------------------------------
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function getAudioContext() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
+function unlockAudio() {
+    const ctx = getAudioContext();
+
+    if (ctx.state === "suspended") {
+        ctx.resume();
+    }
+
+    // Play a silent buffer to fully unlock
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+}
 
 function playBop(freq) {
     const osc = audioCtx.createOscillator();
@@ -96,6 +118,7 @@ function togglePlayback(state) {
         clearInterval(timer);
         timer = null;
     }else {
+        unlockAudio(); // explicitly unlocks audio on user gesture
         startPlayback();
     }
 }
@@ -164,4 +187,11 @@ window.addEventListener("load", () => {
             document.getElementById("app").classList.remove("hidden");
         }, 900);
     }, 1400);
+});
+
+//unlock audio on page focus (required for PWA stability)
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        unlockAudio();
+    }
 });
