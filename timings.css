@@ -227,3 +227,48 @@ select option:hover {
         display: block;
     }
 }
+
+/* about box */
+/* Closed state: question mark */
+#about-toggle {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50%;
+
+    cursor: pointer;
+    z-index: 200;
+}
+
+/* Open state: info box */
+#about-box {
+    position: fixed;
+    left: 12px;
+    bottom: 48px;
+
+    padding: 10px 12px;
+    max-width: 220px;
+
+    font-size: 12px;
+    line-height: 1.4;
+
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 8px;
+
+    display: none;
+    z-index: 200;
+}

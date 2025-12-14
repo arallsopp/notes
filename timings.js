@@ -265,3 +265,15 @@ document.getElementById("audio-restart").addEventListener("click", () => {
     unlockAudio();
     hideAudioRecoveryUI();
 });
+
+
+/* handle about box */
+const aboutToggle = document.getElementById("about-toggle");
+const aboutBox = document.getElementById("about-box");
+
+aboutToggle.addEventListener("click", () => {
+    const isOpen = aboutBox.style.display === "block";
+
+    aboutBox.style.display = isOpen ? "none" : "block";
+    aboutToggle.textContent = isOpen ? "?" : "×";
+});
