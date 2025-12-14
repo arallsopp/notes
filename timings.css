@@ -36,7 +36,7 @@ input,select{
     box-sizing: border-box;
     aspect-ratio: 1 / 1;    /* optional: keep square cells */
     width: 100%;
-    border: 2px solid #180101;
+    border: 2px solid #409dcd;
     display: flex;
     align-items: center;
     justify-content: center;
