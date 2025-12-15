@@ -40,25 +40,18 @@ input,select{
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fdcf08;
+    background: #fdcf0a;
     border-radius: 13px;
     transition: background 0.1s ease;
+
 }
 .thin-borders .cell{
     border-width: 0.2px;
     border-radius:3px;
 }
-.beat-cell {
-    margin-top:5px;
-    height: 20%;
-    background: #4dbbf4;
-    border:none;
-}
-.cell.beat-cell.active {
-    background: #ff0000;
-}
+
 .hit {background: #9a302b;}
-.active { background: #00ccff  }
+.active { background:#ffffff}
 .active.hit { background: #ff0000 !important; }
 .label {margin-right: 4px; }
 

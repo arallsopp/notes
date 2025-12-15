@@ -174,7 +174,7 @@ function rebuildGrid() {
     grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(2, 1fr)`;
 
-    cellRefs = [[], [], []];
+    cellRefs = [[], []];
 
     // Row 0 = left hand, Row 1 = right hand
     [leftHits, rightHits].forEach((hits, rowIdx) => {
@@ -186,14 +186,6 @@ function rebuildGrid() {
             cellRefs[rowIdx].push(cell);
         }
     });
-
-    // ---------- Beat row ----------
-    for (let col = 0; col < gridSize; col++) {
-        const cell = document.createElement("div");
-        cell.className = "cell beat-cell";
-        grid.appendChild(cell);
-        cellRefs[2].push(cell);
-    }
 
     //format the borders for wide grids
     const gridEl = document.querySelector("#grid");
@@ -273,11 +265,6 @@ function startPlayback() {
         if (rightHits.includes(currentStep)) {
             playBop(400, isBarStart);
         }
-
-        // beat playhead
-        cellRefs[2].forEach(c => c.classList.remove("active"));
-        cellRefs[2][currentStep].classList.add("active");
-
 
         // Animate eyes/brows
         bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep), isBarStart);
