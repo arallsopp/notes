@@ -40,6 +40,39 @@ function audioHeartbeat() {
 }
 
 
+function updateSamLayout() {
+    const grid = document.querySelector("#grid");
+    const sam = document.querySelector("#sam");
+    if (!grid || !sam) return;
+
+    const gridRect = grid.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+
+    const SAM_MIN_CLEARANCE = 120; // minimum space below grid to show Sam
+    const SAM_MULTIPLIER = 0.76;   // scales downward movement
+
+    // compute free space below grid
+    const spaceBelow = viewportHeight - (gridRect.top + gridRect.height);
+
+    // determine visibility
+    const showSam = spaceBelow >= SAM_MIN_CLEARANCE;
+    sam.style.display = showSam ? "block" : "none";
+    if (!showSam) return;
+
+    // scale sam's width based upon actual free space
+    let width = spaceBelow * SAM_MULTIPLIER;
+
+    console.log(`grid height is ${viewportHeight-spaceBelow}, space below grid is ${spaceBelow}`);
+    console.log(`width is ${width}, space below is ${spaceBelow} and mutiplier is ${SAM_MULTIPLIER}`);
+
+    sam.style.width = `${width}px`;
+    sam.style.left = "50%";
+    sam.style.transform = "translateX(-50%)";
+
+    // optional: store grid height for other calculations
+    document.documentElement.style.setProperty("--grid-height", `${gridRect.height}px`);
+}
+
 function showAudioRecoveryUI() {
     document.getElementById("audio-restart").hidden = false;
 }
@@ -151,14 +184,7 @@ function rebuildGrid() {
     const gridEl = document.querySelector("#grid");
     gridEl.classList.toggle("thin-borders", gridSize > 12);
 
-    //work out the gridHeight so that we can move sam out of the way
-    const gridHeight = gridEl.getBoundingClientRect().height;
-
-    // expose gridheight to CSS
-    document.documentElement.style.setProperty(
-        "--grid-height",
-        `${gridHeight}px`
-    );
+    updateSamLayout();
 
     return { gridSize, leftHits, rightHits };
 }
@@ -245,8 +271,10 @@ window.addEventListener("load", () => {
         setTimeout(() => {
             screen.remove();
             document.getElementById("app").classList.remove("hidden");
+            updateSamLayout();
         }, 900);
     }, 1400);
+
 });
 
 /* eyes anim */
@@ -293,6 +321,8 @@ document.addEventListener("visibilitychange", () => {
 
 window.addEventListener("focus", handleFocusReturn);
 
+window.addEventListener("resize", updateSamLayout);
+
 document.getElementById("audio-restart").addEventListener("click", () => {
     unlockAudio();
     hideAudioRecoveryUI();
@@ -309,3 +339,4 @@ aboutToggle.addEventListener("click", () => {
     aboutBox.style.display = isOpen ? "none" : "block";
     aboutToggle.textContent = isOpen ? "?" : "×";
 });
+
