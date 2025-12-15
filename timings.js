@@ -241,12 +241,12 @@ window.addEventListener("load", () => {
 });
 
 /* eyes anim */
-let eyes = document.getElementById("eyes"),
-    brows = document.getElementById("brows");
+let eyes = document.querySelector(".eyes"),
+    brows = document.querySelector(".brows");
 
 const EYE_POSITIONS = {
-    left:  "translateX(-2.5vw)",
-    right: "translateX(2.5vw)",
+    left:  "translateX(-5.7vw)",
+    right: "translateX(3.7vw)",
     center:"translateX(0)"
 };
 

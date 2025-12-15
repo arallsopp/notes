@@ -214,13 +214,13 @@ select option:hover {
 }
 
 /* Eyes anim */
-#eyes, #brows {
+.eyes, .brows {
   transform-origin: center;
   transform-box: fill-box;
   transition: transform 80ms linear;
 }
 #sam {
-    position:absolute;
+    position:fixed;
     bottom:0;
     width: 100vw;
     height: auto;
@@ -231,7 +231,7 @@ select option:hover {
         max-width:350px;
     }
 }
-@media (max-aspect-ratio: 595/1078) {
+@media (max-aspect-ratio: 365/748) {
     #sam {
         display: block;
     }
