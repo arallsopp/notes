@@ -151,6 +151,15 @@ function rebuildGrid() {
     const gridEl = document.querySelector("#grid");
     gridEl.classList.toggle("thin-borders", gridSize > 12);
 
+    //work out the gridHeight so that we can move sam out of the way
+    const gridHeight = gridEl.getBoundingClientRect().height;
+
+    // expose gridheight to CSS
+    document.documentElement.style.setProperty(
+        "--grid-height",
+        `${gridHeight}px`
+    );
+
     return { gridSize, leftHits, rightHits };
 }
 

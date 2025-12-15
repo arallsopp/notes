@@ -221,7 +221,8 @@ select option:hover {
 }
 #sam {
     position:fixed;
-    bottom:0;
+    left:0;
+    bottom: calc(var(--grid-height, 0px) * -0.85);
     width: 100vw;
     height: auto;
     display: none;
