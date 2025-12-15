@@ -202,9 +202,11 @@ function togglePlayback(state) {
     if (!state){
         clearInterval(timer);
         timer = null;
+        playBtn.innerHTML = "<span>Play</span>";
     }else {
         unlockAudio(); // explicitly unlocks audio on user gesture
         startPlayback();
+        playBtn.innerHTML = "<span>Stop</span>";
     }
 }
 // ------------------------------------------------------------
