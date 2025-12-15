@@ -1,3 +1,6 @@
+let samWidth = null;  //global var for tracking size against anims.
+
+
 // ------------------------------------------------------------
 // Utility: GCD / LCM
 // ------------------------------------------------------------
@@ -69,8 +72,8 @@ function updateSamLayout() {
     sam.style.left = "50%";
     sam.style.transform = "translateX(-50%)";
 
-    // optional: store grid height for other calculations
-    document.documentElement.style.setProperty("--grid-height", `${gridRect.height}px`);
+    //store the width for animation of eyes and brows
+    samWidth = width;
 }
 
 function showAudioRecoveryUI() {
@@ -281,26 +284,23 @@ window.addEventListener("load", () => {
 let eyes = document.querySelector(".eyes"),
     brows = document.querySelector(".brows");
 
-const EYE_POSITIONS = {
-    left:  "translateX(-5.7vw)",
-    right: "translateX(3.7vw)",
-    center:"translateX(0)"
-};
+
 
 function bopEyes(leftBeat,rightBeat, zeroBeat) {
     if (!eyes) return;
 
+    console.log(`bopping eyes based upon a width of ${samWidth}`);
     if (leftBeat && rightBeat) {
-        eyes.style.transform = EYE_POSITIONS.center;
+        eyes.style.transform = `translateX(0px)`;
     } else if (leftBeat) {
-        eyes.style.transform = EYE_POSITIONS.left;
+        eyes.style.transform = `translateX(${-samWidth * 0.05}px)`;
     } else if (rightBeat) {
-        eyes.style.transform = EYE_POSITIONS.right;
+        eyes.style.transform = `translateX(${samWidth * 0.04}px)`;
     }
 
     if (zeroBeat) {
         // Raise brows immediately
-        brows.style.transform = "translateY(-2vw)";
+        brows.style.transform = `translateY(${-samWidth * 0.05}px)`;
 
         // Cancel any previous reset
         if (browResetTimeout) {
