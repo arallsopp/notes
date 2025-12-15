@@ -23,6 +23,7 @@ function expand(divisions, gridSize) {
 // ------------------------------------------------------------
 let audioCtx = null;
 let masterGain = null;
+let browResetTimeout = null;
 let lastAudioTick = 0;
 
 function audioHeartbeat() {
@@ -81,19 +82,23 @@ function unlockAudio() {
     src.connect(masterGain);
     src.start();
 }
-function playBop(freq) {
+function playBop(freq, accent) {
     const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+    const gain = audioCtx.createGain(),
+        gain_value = accent ? 0.35 : 0.18,
+        duration = accent ? 0.12 : 0.08
 
     osc.frequency.value = freq;
-    gain.gain.value = 0.9;
+
+    //accents are slightly louder and slightly longer
+    gain.gain.value = gain_value;
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-    osc.stop(audioCtx.currentTime + 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.stop(audioCtx.currentTime + duration);
 }
 
 // Left hand = 240Hz bop
@@ -175,19 +180,23 @@ function startPlayback() {
         // clear all highlights
         cellRefs.flat().forEach(c => c.classList.remove("active"));
 
+        // work out whether we are accented
+        const isBarStart = currentStep === 0;
+
+
         // play left hand?
         if (leftHits.includes(currentStep)) {
-            playBop(240);
+            playBop(240,isBarStart);
             cellRefs[0][currentStep].classList.add("active");
         }
 
         // play right hand?
         if (rightHits.includes(currentStep)) {
-            playBop(400);
+            playBop(400,isBarStart);
             cellRefs[1][currentStep].classList.add("active");
         }
 
-        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep),currentStep === 0);
+        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep),isBarStart);
 
         currentStep = (currentStep + 1) % gridSize;
     }
@@ -249,9 +258,19 @@ function bopEyes(leftBeat,rightBeat, zeroBeat) {
     }
 
     if (zeroBeat) {
-        brows.style.transform = "translateY(-2vw)"
-    }else{
-        brows.style.transform = "translateY(0)"
+        // Raise brows immediately
+        brows.style.transform = "translateY(-2vw)";
+
+        // Cancel any previous reset
+        if (browResetTimeout) {
+            clearTimeout(browResetTimeout);
+        }
+
+        // Schedule reset
+        browResetTimeout = setTimeout(() => {
+            brows.style.transform = "translateY(0)";
+            browResetTimeout = null;
+        }, 160);
     }
 }
 
