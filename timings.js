@@ -209,42 +209,56 @@ function togglePlayback(state) {
 // Playback loop
 // ------------------------------------------------------------
 function startPlayback() {
-    const bpm = parseInt(tempoInput.value, 10);
-
+    const bpm = parseInt(tempoInput.value, 10); // tempo in BPM
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
     if (timer) clearInterval(timer);
     currentStep = 0;
 
-    const interval = (60000 / bpm) / gridSize; // beat subdivided into gridSize parts
+    // Determine steps per beat
+    const beatsPerBar = 4; // adjust if using different time signatures
+    const stepsPerBeat = gridSize / beatsPerBar;
 
+    // Duration of one step in ms
+    let stepDuration = (60000 / bpm) / stepsPerBeat;
+
+    // Playback step function
     function step() {
-        // clear all highlights
+        // Clear previous highlights
         cellRefs.flat().forEach(c => c.classList.remove("active"));
 
-        // work out whether we are accented
-        const isBarStart = currentStep === 0;
+        // Determine if first step of the bar
+        const isBarStart = currentStep % gridSize === 0;
 
-
-        // play left hand?
+        // Left hand
         if (leftHits.includes(currentStep)) {
-            playBop(240,isBarStart);
+            playBop(240, isBarStart);
             cellRefs[0][currentStep].classList.add("active");
         }
 
-        // play right hand?
+        // Right hand
         if (rightHits.includes(currentStep)) {
-            playBop(400,isBarStart);
+            playBop(400, isBarStart);
             cellRefs[1][currentStep].classList.add("active");
         }
 
-        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep),isBarStart);
+        // Animate eyes and brows
+        bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep), isBarStart);
 
         currentStep = (currentStep + 1) % gridSize;
     }
 
+    // Start immediately
     step();
-    timer = setInterval(step, interval);
+
+    // Use recursive setTimeout instead of setInterval for precise timing and dynamic tempo changes
+    function scheduleNext() {
+        step();
+        stepDuration = (60000 / bpm) / stepsPerBeat; // recalc in case tempoInput changed
+        timer = setTimeout(scheduleNext, stepDuration);
+    }
+
+    timer = setTimeout(scheduleNext, stepDuration);
 }
 
 // Auto rebuild grid initially
