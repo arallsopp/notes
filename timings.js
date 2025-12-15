@@ -211,22 +211,43 @@ function togglePlayback(state) {
 // Playback loop
 // ------------------------------------------------------------
 function startPlayback() {
-    const bpm = parseInt(tempoInput.value, 10); // tempo in BPM
-    const beatsPerBar = parseInt(timeSignatureSelect.value, 10); // dynamic
+    const bpm = parseInt(tempoInput.value, 10);
+    const timeSig = document.getElementById("time-signature").value; // e.g., "6/8"
+
+    const [numerator, denominator] = timeSig.split("/").map(Number);
+
+    // Determine beats per bar and beat unit
+    // Standard convention:
+    // - For 4/4, 3/4 → quarter note is 1 beat
+    // - For 6/8, 12/8 → dotted quarter note is 1 beat
+    let beatsPerBar, beatUnit; // beatUnit is fraction of whole note
+
+    if (denominator === 8 && numerator % 3 === 0) {
+        // compound time
+        beatsPerBar = numerator / 3;        // e.g., 6/8 -> 2 beats per bar
+        beatUnit = 3 / 8;                   // dotted quarter = 3 eighths
+    } else {
+        // simple time
+        beatsPerBar = numerator;
+        beatUnit = 1 / denominator;         // e.g., quarter note = 1/4
+    }
+
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
-    if (timer) clearInterval(timer);
+    if (timer) clearTimeout(timer);
     currentStep = 0;
 
+    // Calculate steps per beat
     const stepsPerBeat = gridSize / beatsPerBar;
+
+    // Step duration in ms
     let stepDuration = (60000 / bpm) / stepsPerBeat;
 
-    // Playback step function
     function step() {
-        // Clear previous highlights
+        // Clear highlights
         cellRefs.flat().forEach(c => c.classList.remove("active"));
 
-        // Determine if first step of the bar
+        // First step of bar
         const isBarStart = currentStep % gridSize === 0;
 
         // Left hand
@@ -241,20 +262,22 @@ function startPlayback() {
             cellRefs[1][currentStep].classList.add("active");
         }
 
-        // Animate eyes and brows
+        // Animate eyes/brows
         bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep), isBarStart);
 
         currentStep = (currentStep + 1) % gridSize;
     }
 
-    // Use recursive setTimeout instead of setInterval for precise timing and dynamic tempo changes
+    // Recursive timeout for dynamic tempo
     function scheduleNext() {
         step();
-        // recalc in case BPM changed dynamically
-        stepDuration = (60000 / bpm) / stepsPerBeat;
+        // recalc in case tempo changes dynamically
+        const bpmNow = parseInt(tempoInput.value, 10);
+        stepDuration = (60000 / bpmNow) / stepsPerBeat;
         timer = setTimeout(scheduleNext, stepDuration);
     }
 
+    // Start immediately
     step();
     timer = setTimeout(scheduleNext, stepDuration);
 }
