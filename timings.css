@@ -226,7 +226,7 @@ select option:hover {
     width: 100vw;
     height: auto;
     pointer-events: none;
-
+    transition: width 0.7s ease;
 }
 @media (min-width: 500px) {
     #svg-bottom {
