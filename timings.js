@@ -147,6 +147,10 @@ function rebuildGrid() {
         }
     });
 
+    //format the borders for wide grids
+    const gridEl = document.querySelector("#grid");
+    gridEl.classList.toggle("thin-borders", gridSize > 12);
+
     return { gridSize, leftHits, rightHits };
 }
 

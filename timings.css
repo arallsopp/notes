@@ -44,6 +44,10 @@ input,select{
     border-radius: 13px;
     transition: background 0.1s ease;
 }
+.thin-borders .cell{
+    border-width: 0.2px;
+    border-radius:3px;
+}
 .hit {background: #9a302b;}
 .active { background: #00ccff !important; }
 .active.hit { background: #ff0000 !important; }
