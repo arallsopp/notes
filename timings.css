@@ -30,7 +30,7 @@ input,select{
 #grid {
     width: 100%;
     display: grid;
-; margin-top: 16px;
+    margin-top: 16px;
 }
 .cell {
     box-sizing: border-box;
@@ -48,8 +48,17 @@ input,select{
     border-width: 0.2px;
     border-radius:3px;
 }
+.beat-cell {
+    margin-top:5px;
+    height: 20%;
+    background: #4dbbf4;
+    border:none;
+}
+.cell.beat-cell.active {
+    background: #ff0000;
+}
 .hit {background: #9a302b;}
-.active { background: #00ccff !important; }
+.active { background: #00ccff  }
 .active.hit { background: #ff0000 !important; }
 .label {margin-right: 4px; }
 
@@ -215,9 +224,9 @@ select option:hover {
 
 /* Eyes anim */
 .eyes, .brows {
-  transform-origin: center;
-  transform-box: fill-box;
-  transition: transform 0.12s ease-out;
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: transform 0.12s ease-out;
 }
 #sam {
     position:fixed;
