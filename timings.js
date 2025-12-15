@@ -147,6 +147,8 @@ const grid = document.getElementById("grid");
 const leftSelect = document.getElementById("leftSelect");
 const rightSelect = document.getElementById("rightSelect");
 const tempoInput = document.getElementById("tempo");
+const timeSignatureSelect = document.getElementById("time-signature");
+
 const playBtn = document.getElementById("playBtn");
 
 let cellRefs = [];
@@ -210,16 +212,13 @@ function togglePlayback(state) {
 // ------------------------------------------------------------
 function startPlayback() {
     const bpm = parseInt(tempoInput.value, 10); // tempo in BPM
+    const beatsPerBar = parseInt(timeSignatureSelect.value, 10); // dynamic
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
     if (timer) clearInterval(timer);
     currentStep = 0;
 
-    // Determine steps per beat
-    const beatsPerBar = 4; // adjust if using different time signatures
     const stepsPerBeat = gridSize / beatsPerBar;
-
-    // Duration of one step in ms
     let stepDuration = (60000 / bpm) / stepsPerBeat;
 
     // Playback step function
@@ -248,16 +247,15 @@ function startPlayback() {
         currentStep = (currentStep + 1) % gridSize;
     }
 
-    // Start immediately
-    step();
-
     // Use recursive setTimeout instead of setInterval for precise timing and dynamic tempo changes
     function scheduleNext() {
         step();
-        stepDuration = (60000 / bpm) / stepsPerBeat; // recalc in case tempoInput changed
+        // recalc in case BPM changed dynamically
+        stepDuration = (60000 / bpm) / stepsPerBeat;
         timer = setTimeout(scheduleNext, stepDuration);
     }
 
+    step();
     timer = setTimeout(scheduleNext, stepDuration);
 }
 
@@ -275,6 +273,12 @@ rightSelect.addEventListener("change", function(){
     togglePlayback(false);
 });
 tempoInput.addEventListener("change", startPlayback);
+
+timeSignatureSelect.addEventListener("change", () => {
+    if (timer) clearTimeout(timer); // stop playback
+    startPlayback();               // restart with new beats per bar
+});
+
 playBtn.addEventListener("click", function(){
     togglePlayback()
 });
