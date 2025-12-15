@@ -13,7 +13,7 @@ body {
 }
 label,input,button,select{
     font-family: 'RockSalt', sans-serif;
-    font-size: 6vw;
+    font-size: clamp(16px, 6vw, 36px);
 }
 input,select{
     padding:0 10px;
