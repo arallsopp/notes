@@ -150,6 +150,8 @@ const tempoInput = document.getElementById("tempo");
 const timeSignatureSelect = document.getElementById("time-signature");
 
 const playBtn = document.getElementById("playBtn");
+const playBtnSpan = playBtn.querySelector("span");
+
 
 let cellRefs = [];
 let timer = null;
@@ -202,11 +204,11 @@ function togglePlayback(state) {
     if (!state){
         clearInterval(timer);
         timer = null;
-        playBtn.innerHTML = "<span>Play</span>";
+        playBtnSpan.textContent = "Play";
     }else {
         unlockAudio(); // explicitly unlocks audio on user gesture
         startPlayback();
-        playBtn.innerHTML = "<span>Stop</span>";
+        playBtnSpan.textContent = "Stop";
     }
 }
 // ------------------------------------------------------------
@@ -233,7 +235,7 @@ function startPlayback() {
         beatsPerBar = numerator;
         beatUnit = 1 / denominator;         // e.g., quarter note = 1/4
     }
-
+    console.log(`bpm: ${bpm}, timeSig: ${timeSig}, beatsPerBar: ${beatsPerBar}, beatUnit: ${beatUnit}`);
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
     if (timer) clearTimeout(timer);
