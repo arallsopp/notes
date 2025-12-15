@@ -217,7 +217,7 @@ select option:hover {
 .eyes, .brows {
   transform-origin: center;
   transform-box: fill-box;
-  transition: transform 80ms linear;
+  transition: transform 0.12s ease-out;
 }
 #sam {
     position:fixed;
