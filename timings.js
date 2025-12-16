@@ -82,11 +82,12 @@ function audioHeartbeat() {
 
 
 function updateSamLayout() {
-    const grid = document.querySelector("#grid");
+    const grid = document.querySelector("#grid"),
+        gridContainer = document.querySelector("#grid-container");
     const sam = document.querySelector("#sam");
-    if (!grid || !sam) return;
+    if (!gridContainer || !sam) return;
 
-    const gridRect = grid.getBoundingClientRect();
+    const gridRect = gridContainer.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
 
     const SAM_MIN_CLEARANCE = 120; // minimum space below grid to show Sam
@@ -229,6 +230,7 @@ function rebuildGrid() {
     const gridEl = document.querySelector("#grid");
     gridEl.classList.toggle("thin-borders", gridSize > 12);
 
+    renderPhrase(leftSelect.value, rightSelect.value);
     updateSamLayout();
 
     return { gridSize, leftHits, rightHits };
@@ -276,7 +278,6 @@ function startPlayback() {
     console.log(`bpm: ${bpm}, timeSig: ${timeSig}, beatsPerBar: ${beatsPerBar}, beatUnit: ${beatUnit}`);
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
-    renderPhrase(leftSelect.value, rightSelect.value);
     if (timer) clearTimeout(timer);
     currentStep = 0;
 
@@ -333,13 +334,11 @@ rebuildGrid();
 
 // Rebuild when dropdowns change
 leftSelect.addEventListener("change", function(){
-    renderPhrase();
     rebuildGrid();
     togglePlayback(false);
 });
 
 rightSelect.addEventListener("change", function(){
-    renderPhrase();
     rebuildGrid();
     togglePlayback(false);
 });
