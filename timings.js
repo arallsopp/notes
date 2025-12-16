@@ -10,6 +10,11 @@ const RHYTHM_PHRASES = {
         text: "nice cup of tea",
         syllables: ["nice ", "cup ", "of ", "tea."],
         steps:     [1,      3,     4,    5]
+    },
+    "2:5": {
+        text: "this is two against five",
+        syllables: ["this ", "is ", "two ", "ag", "ainst ", "five."],
+        steps:     [1,       3,     5,      6,     7,        9]
     }
 };
 const phraseEl = document.getElementById("phrase");
@@ -82,8 +87,7 @@ function audioHeartbeat() {
 
 
 function updateSamLayout() {
-    const grid = document.querySelector("#grid"),
-        gridContainer = document.querySelector("#grid-container");
+    const gridContainer = document.querySelector("#grid-container");
     const sam = document.querySelector("#sam");
     if (!gridContainer || !sam) return;
 
