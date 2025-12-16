@@ -1,5 +1,29 @@
 let samWidth = null;  //global var for tracking size against anims.
 
+const RHYTHM_PHRASES = {
+    "4:3": "where's the big umbrella",
+    "3:4": "pass the golden butter",
+    "2:3": "nice cup of tea",
+    "3:2": "hot cup of coffee"
+};
+
+phraseEl = document.getElementById("phrase");
+
+function speakPhraseForPattern(leftDiv, rightDiv) {
+    const key = `${leftDiv}:${rightDiv}`;
+    const phrase = RHYTHM_PHRASES[key];
+    if (!phrase) return;
+
+    speechSynthesis.cancel();
+
+    const utter = new SpeechSynthesisUtterance(phrase);
+    utter.rate = 0.95;     // slightly slower = clearer
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    speechSynthesis.speak(utter);
+}
+
 
 // ------------------------------------------------------------
 // Utility: GCD / LCM
@@ -241,6 +265,9 @@ function startPlayback() {
     if (timer) clearTimeout(timer);
     currentStep = 0;
 
+    //say the phrase
+    speakPhraseForPattern(4, 3);
+
     // Calculate steps per beat
     const stepsPerBeat = gridSize / beatsPerBar;
 
@@ -253,6 +280,7 @@ function startPlayback() {
 
         // First step of bar
         const isBarStart = currentStep % gridSize === 0;
+
 
         // Left hand
         cellRefs[0][currentStep].classList.add("active");
@@ -291,11 +319,13 @@ rebuildGrid();
 
 // Rebuild when dropdowns change
 leftSelect.addEventListener("change", function(){
+    phraseEl.textContent = RHYTHM_PHRASES[`${leftSelect.value}:${rightSelect.value}`] ?? "";
     rebuildGrid();
     togglePlayback(false);
 });
 
 rightSelect.addEventListener("change", function(){
+    phraseEl.textContent = RHYTHM_PHRASES[`${leftSelect.value}:${rightSelect.value}`] ?? "";
     rebuildGrid();
     togglePlayback(false);
 });
