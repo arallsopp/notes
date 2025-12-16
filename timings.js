@@ -1,5 +1,43 @@
 let samWidth = null;  //global var for tracking size against anims.
 
+const RHYTHM_PHRASES = {
+    "4:3": {
+        text: "where’s the big umbrella",
+        syllables: ["where’s ", "the ", "big ", "um", "bre", "lla?"],
+        steps:     [1,        4,     5,     7,    9,      10]
+    },
+    "2:3": {
+        text: "nice cup of tea",
+        syllables: ["nice ", "cup ", "of ", "tea."],
+        steps:     [1,      3,     4,    5]
+    }
+};
+const phraseEl = document.getElementById("phrase");
+
+function renderPhrase(leftDiv, rightDiv) {
+    const key = `${leftDiv}:${rightDiv}`;
+    const phrase = RHYTHM_PHRASES[key];
+
+    phraseEl.innerHTML = "";
+
+    if (!phrase) return;
+
+    phrase.syllables.forEach((syl, i) => {
+        const span = document.createElement("span");
+        span.textContent = syl;
+        span.dataset.step = phrase.steps[i];
+        phraseEl.appendChild(span);
+    });
+}
+function updatePhraseHighlight(currentStep) {
+    document.querySelectorAll("#phrase span").forEach(span => {
+        span.classList.toggle(
+            "active",
+            Number(span.dataset.step) === (currentStep+1) //zero based
+        );
+    });
+}
+
 
 // ------------------------------------------------------------
 // Utility: GCD / LCM
@@ -238,6 +276,7 @@ function startPlayback() {
     console.log(`bpm: ${bpm}, timeSig: ${timeSig}, beatsPerBar: ${beatsPerBar}, beatUnit: ${beatUnit}`);
     const { gridSize, leftHits, rightHits } = rebuildGrid();
 
+    renderPhrase(leftSelect.value, rightSelect.value);
     if (timer) clearTimeout(timer);
     currentStep = 0;
 
@@ -269,6 +308,9 @@ function startPlayback() {
         // Animate eyes/brows
         bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep), isBarStart);
 
+        //show phrase highlight if visible
+        updatePhraseHighlight(currentStep);
+
         currentStep = (currentStep + 1) % gridSize;
     }
 
@@ -291,11 +333,13 @@ rebuildGrid();
 
 // Rebuild when dropdowns change
 leftSelect.addEventListener("change", function(){
+    renderPhrase();
     rebuildGrid();
     togglePlayback(false);
 });
 
 rightSelect.addEventListener("change", function(){
+    renderPhrase();
     rebuildGrid();
     togglePlayback(false);
 });
