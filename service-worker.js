@@ -1,4 +1,4 @@
-const CACHE_NAME = "timing-helper-v3.9";
+const CACHE_NAME = "timing-helper-v4";
 
 const FILES = [
     "timings.html",
@@ -7,7 +7,6 @@ const FILES = [
     "manifest.webmanifest",
     "images/icon-192.png",
     "images/icon-512.png",
-    "images/sam.svg",
     "images/cloud.svg",
     "fonts/RockSalt-Regular.ttf"
 ];
