@@ -1,5 +1,29 @@
 let samWidth = null;  //global var for tracking size against anims.
 
+let speechEnabled = true;
+
+function speak(text) {
+    if (!speechEnabled) return;
+    if (!window.speechSynthesis) return;
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.1;
+    utter.pitch = 1;
+    utter.volume = 1;
+
+    // cancel queued junk — keeps rhythm tight
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+}
+
+function getSpokenCue(step, leftHit, rightHit) {
+    if (leftHit && rightHit) return "both";
+    if (leftHit) return "left";
+    if (rightHit) return "right";
+
+    // count steps starting at 1 for humans
+    return String(step + 1);
+}
 
 // ------------------------------------------------------------
 // Utility: GCD / LCM
@@ -252,19 +276,25 @@ function startPlayback() {
         cellRefs.flat().forEach(c => c.classList.remove("active"));
 
         // First step of bar
-        const isBarStart = currentStep % gridSize === 0;
+        const isBarStart = currentStep % gridSize === 0,
+            leftHit = leftHits.includes(currentStep),
+            rightHit = rightHits.includes(currentStep);
 
         // Left hand
         cellRefs[0][currentStep].classList.add("active");
-        if (leftHits.includes(currentStep)) {
+        if (leftHit) {
             playBop(240, isBarStart);
         }
 
         // Right hand
         cellRefs[1][currentStep].classList.add("active");
-        if (rightHits.includes(currentStep)) {
+        if (rightHit) {
             playBop(400, isBarStart);
         }
+
+        //speak, if enabled
+        const cue = getSpokenCue(currentStep, leftHit, rightHit);
+        if (cue) speak(cue);
 
         // Animate eyes/brows
         bopEyes(leftHits.includes(currentStep), rightHits.includes(currentStep), isBarStart);
@@ -373,6 +403,9 @@ document.getElementById("audio-restart").addEventListener("click", () => {
     hideAudioRecoveryUI();
 });
 
+document.body.addEventListener("touchstart", () => {
+    speechSynthesis.resume();
+}, { once: true });
 
 /* handle about box */
 const aboutToggle = document.getElementById("about-toggle");
