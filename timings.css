@@ -41,7 +41,7 @@ input,select{
 #gridContainer {
     width: 90%;
     max-width: 90%;
-    overflow-x: auto;  /* allow scroll when subdivisions are huge (e.g., 48+) */
+    max-height:10vh;
 }
 
 #grid {
@@ -60,6 +60,7 @@ input,select{
     background: #fdcf0a;
     border-radius: 13px;
     transition: background 0.1s ease;
+    max-height:20vh;
 
 }
 .thin-borders .cell{

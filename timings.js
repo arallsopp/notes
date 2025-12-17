@@ -1,19 +1,28 @@
 let samWidth = null;  //global var for tracking size against anims.
 
 const RHYTHM_PHRASES = {
-    "4:3": {
-        text: "where’s the big umbrella",
-        syllables: ["where’s ", "the ", "big ", "um", "bre", "lla?"],
-        steps:     [1,        4,     5,     7,    9,      10]
-    },
     "2:3": {
-        text: "nice cup of tea",
         syllables: ["nice ", "cup ", "of ", "tea."],
         steps:     [1,      3,     4,    5]
     },
+    "3:2": {
+        syllables: ["nice ", "cup ", "of ", "tea."],
+        steps:     [1,      3,     4,    5]
+    },
+    "3:4": {
+        syllables: ["where’s ", "the ", "big ", "um", "bre", "lla?"],
+        steps:     [1,        4,     5,     7,    9,      10]
+    },
+    "4:3": {
+        syllables: ["where’s ", "the ", "big ", "um", "bre", "lla?"],
+        steps:     [1,        4,     5,     7,    9,      10]
+    },
     "2:5": {
-        text: "this is two against five",
         syllables: ["this ", "is ", "two ", "ag", "ainst ", "five."],
+        steps:     [1,       3,     5,      6,     7,        9]
+    },
+    "5:2": {
+        syllables: ["this ", "is ", "five ", "ag", "ainst ", "two."],
         steps:     [1,       3,     5,      6,     7,        9]
     }
 };
