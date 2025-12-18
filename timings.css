@@ -298,3 +298,26 @@ select option:hover {
     display: none;
     z-index: 200;
 }
+
+#metronome-toggle {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 50%;
+
+    cursor: pointer;
+    z-index: 200;
+}

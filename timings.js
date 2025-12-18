@@ -448,3 +448,9 @@ aboutToggle.addEventListener("click", () => {
     aboutToggle.textContent = isOpen ? "?" : "×";
 });
 
+/* handle metronome toggle */
+const metronomeToggle = document.getElementById("metronome-toggle");
+metronomeToggle.addEventListener("click", () => {
+    metronome = !metronome;
+    metronomeToggle.classList.toggle("active", metronome);
+});
