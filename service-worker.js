@@ -1,4 +1,4 @@
-const CACHE_NAME = "timing-helper-v4.1";
+const CACHE_NAME = "timing-helper-v4.2";
 
 const FILES = [
     "timings.html",
