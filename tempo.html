@@ -28,11 +28,14 @@
     <div>Jitter: <span id="jitter">–</span> ms</div>
 </div>
 <script>
-    const MAX_SAMPLES = 8;        // rolling window size
-    const TIMEOUT_MS = 2000;     // reset if no taps
+    const ALPHA = 0.3;           // smoothing factor
+    const MAX_SAMPLES = 8;      // jitter window
+    const TIMEOUT_MS = 2000;    // inactivity reset
+    const DEVIATION = 0.30;     // 30% cutoff
 
-    let taps = [];
     let lastTapTime = null;
+    let smoothedInterval = null;
+    let intervals = [];
     let timeoutId = null;
 
     const bpmEl = document.getElementById('bpm');
@@ -49,54 +52,74 @@
 
         // Reset if tapping stopped
         if (lastTapTime && now - lastTapTime > TIMEOUT_MS) {
-            taps = [];
+            reset();
         }
 
         if (lastTapTime !== null) {
             const interval = now - lastTapTime;
-            taps.push(interval);
 
-            if (taps.length > MAX_SAMPLES) {
-                taps.shift();
+            // Initialize smoothing
+            if (smoothedInterval === null) {
+                smoothedInterval = interval;
+            } else {
+                // Deviation rejection
+                const deviation = Math.abs(interval - smoothedInterval) / smoothedInterval;
+                if (deviation > DEVIATION) {
+                    lastTapTime = now;
+                    return; // ignore bad tap
+                }
+
+                // Exponential smoothing
+                smoothedInterval =
+                    ALPHA * interval + (1 - ALPHA) * smoothedInterval;
             }
 
-            updateStats();
+            // Store for jitter calculation
+            intervals.push(smoothedInterval);
+            if (intervals.length > MAX_SAMPLES) {
+                intervals.shift();
+            }
+
+            updateDisplay();
         }
 
         lastTapTime = now;
         resetTimeout();
     }
 
-    function resetTimeout() {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            taps = [];
-            lastTapTime = null;
-            bpmEl.textContent = '–';
-            jitterEl.textContent = '–';
-        }, TIMEOUT_MS);
-    }
+    function updateDisplay() {
+        if (smoothedInterval === null || intervals.length < 2) return;
 
-    function updateStats() {
-        if (taps.length < 2) return;
-
-        const avgInterval = mean(taps);
-        const bpm = 60000 / avgInterval;
-        const jitter = stddev(taps, avgInterval);
+        const bpm = 60000 / smoothedInterval;
+        const jitter = stddev(intervals);
 
         bpmEl.textContent = bpm.toFixed(1);
         jitterEl.textContent = jitter.toFixed(1);
     }
 
-    function mean(arr) {
-        return arr.reduce((a, b) => a + b, 0) / arr.length;
-    }
+    function stddev(arr) {
+        const mean =
+            arr.reduce((a, b) => a + b, 0) / arr.length;
 
-    function stddev(arr, mean) {
         const variance =
-            arr.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / arr.length;
+            arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / arr.length;
+
         return Math.sqrt(variance);
     }
+
+    function resetTimeout() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(reset, TIMEOUT_MS);
+    }
+
+    function reset() {
+        lastTapTime = null;
+        smoothedInterval = null;
+        intervals = [];
+        bpmEl.textContent = '–';
+        jitterEl.textContent = '–';
+    }
+
 </script>
 </body>
 </html>
