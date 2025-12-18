@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+    <meta property="og:description" content="A sample timing tool to help me learn rhythms">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rhythm Helper">
+    <title>Rhythm Helper</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        #tap{
+            width: 30vw;
+            height: 30vh;
+        }
+    </style>
+
+</head>
+
+<body>
+<button id="tap">Tap</button>
+<div>
+    <div>Tempo: <span id="bpm">–</span> BPM</div>
+    <div>Jitter: <span id="jitter">–</span> ms</div>
+</div>
+<script>
+    const MAX_SAMPLES = 8;        // rolling window size
+    const TIMEOUT_MS = 2000;     // reset if no taps
+
+    let taps = [];
+    let lastTapTime = null;
+    let timeoutId = null;
+
+    const bpmEl = document.getElementById('bpm');
+    const jitterEl = document.getElementById('jitter');
+    const tapBtn = document.getElementById('tap');
+
+    tapBtn.addEventListener('click', registerTap);
+    document.addEventListener('keydown', e => {
+        if (e.code === 'Space') registerTap();
+    });
+
+    function registerTap() {
+        const now = performance.now();
+
+        // Reset if tapping stopped
+        if (lastTapTime && now - lastTapTime > TIMEOUT_MS) {
+            taps = [];
+        }
+
+        if (lastTapTime !== null) {
+            const interval = now - lastTapTime;
+            taps.push(interval);
+
+            if (taps.length > MAX_SAMPLES) {
+                taps.shift();
+            }
+
+            updateStats();
+        }
+
+        lastTapTime = now;
+        resetTimeout();
+    }
+
+    function resetTimeout() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            taps = [];
+            lastTapTime = null;
+            bpmEl.textContent = '–';
+            jitterEl.textContent = '–';
+        }, TIMEOUT_MS);
+    }
+
+    function updateStats() {
+        if (taps.length < 2) return;
+
+        const avgInterval = mean(taps);
+        const bpm = 60000 / avgInterval;
+        const jitter = stddev(taps, avgInterval);
+
+        bpmEl.textContent = bpm.toFixed(1);
+        jitterEl.textContent = jitter.toFixed(1);
+    }
+
+    function mean(arr) {
+        return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+
+    function stddev(arr, mean) {
+        const variance =
+            arr.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / arr.length;
+        return Math.sqrt(variance);
+    }
+</script>
+</body>
+</html>
