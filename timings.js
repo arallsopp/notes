@@ -27,6 +27,7 @@ const RHYTHM_PHRASES = {
     }
 };
 const phraseEl = document.getElementById("phrase");
+let metronome = false;
 
 function renderPhrase(leftDiv, rightDiv) {
     const key = `${leftDiv}:${rightDiv}`;
@@ -317,6 +318,12 @@ function startPlayback() {
         cellRefs[1][currentStep].classList.add("active");
         if (rightHits.includes(currentStep)) {
             playBop(400, isBarStart);
+        }
+
+        if(metronome){
+            if(!rightHits.includes(currentStep) && !leftHits.includes(currentStep)){
+                playBop(50, isBarStart);
+            }
         }
 
         // Animate eyes/brows
