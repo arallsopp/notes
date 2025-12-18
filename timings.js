@@ -322,7 +322,7 @@ function startPlayback() {
 
         if(metronome){
             if(!rightHits.includes(currentStep) && !leftHits.includes(currentStep)){
-                playBop(50, isBarStart);
+                playBop(80, isBarStart);
             }
         }
 

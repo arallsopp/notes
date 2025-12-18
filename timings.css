@@ -321,3 +321,14 @@ select option:hover {
     cursor: pointer;
     z-index: 200;
 }
+#metronome-toggle.active{
+    background: rgba(255, 255, 255, 1);
+}
+#metronome-toggle svg{
+    fill: rgba(255,255,255,0.6);
+    height:20px;
+}
+#metronome-toggle.active svg{
+    fill: black;
+    height:20px;
+}
