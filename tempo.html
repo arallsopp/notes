@@ -60,18 +60,21 @@
 
             // Initialize smoothing
             if (smoothedInterval === null) {
+                // First usable interval → show BPM immediately
                 smoothedInterval = interval;
+                intervals.push(interval);
+                updateDisplay();
             } else {
-                // Deviation rejection
                 const deviation = Math.abs(interval - smoothedInterval) / smoothedInterval;
                 if (deviation > DEVIATION) {
                     lastTapTime = now;
-                    return; // ignore bad tap
+                    return;
                 }
 
-                // Exponential smoothing
                 smoothedInterval =
                     ALPHA * interval + (1 - ALPHA) * smoothedInterval;
+
+                intervals.push(interval);
             }
 
             // Store for jitter calculation
