@@ -127,12 +127,34 @@ function updateSamLayout() {
 
     //store the width for animation of eyes and brows
     samWidth = width;
+
+    //handle xmas hat
+    const xmas = document.getElementById("xmas");
+    if (xmas) {
+        xmas.style.position = "fixed";
+        xmas.style.width = `${samWidth * 0.65}px`;
+        xmas.style.left = `${samWidth * 0.6}px`;
+        xmas.style.bottom = `${samWidth * 0.8}px`;
+    }
 }
 
 function showAudioRecoveryUI() {
     document.getElementById("audio-restart").hidden = false;
 }
 
+function considerXmas(){
+    const now = new Date();
+    const isDecember = now.getMonth() === 11; // Months are 0-based
+
+    if (isDecember) {
+        const img = document.createElement("img");
+        img.id = "xmas";
+        img.src = "images/xmas.svg";
+        img.alt = "Xmas hat";
+        img.width = 150;
+        document.body.appendChild(img);
+    }
+}
 function hideAudioRecoveryUI() {
     document.getElementById("audio-restart").hidden = true;
 }
@@ -382,6 +404,7 @@ window.addEventListener("load", () => {
         setTimeout(() => {
             screen.remove();
             document.getElementById("app").classList.remove("hidden");
+            considerXmas();
             updateSamLayout();
         }, 900);
     }, 1400);
