@@ -301,8 +301,7 @@ select option:hover {
     display: none;
     z-index: 200;
 }
-
-#metronome-toggle {
+#metronome-toggle, #toggle-xmas {
     position: fixed;
     right: 12px;
     bottom: 12px;
@@ -324,14 +323,18 @@ select option:hover {
     cursor: pointer;
     z-index: 200;
 }
-#metronome-toggle.active{
+#metronome-toggle.active, #toggle-xmas.active{
     background: rgba(255, 255, 255, 1);
 }
-#metronome-toggle svg{
+#metronome-toggle svg, #toggle-xmas svg{
     fill: rgba(255,255,255,0.6);
     height:20px;
 }
-#metronome-toggle.active svg{
+#metronome-toggle.active svg,
+#toggle-xmas.active svg{
     fill: black;
-    height:20px;
+}
+#toggle-xmas{
+    display:none;
+    right:43px;
 }

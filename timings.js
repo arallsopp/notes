@@ -130,7 +130,7 @@ function updateSamLayout() {
 
     //handle xmas hat
     const xmas = document.getElementById("xmas");
-    if (xmas) {
+    if (xmas ) {
         xmas.style.position = "fixed";
         xmas.style.width = `${samWidth * 0.65}px`;
         xmas.style.left = `calc(50vw - ${samWidth * 0.27}px)`;
@@ -147,12 +147,18 @@ function considerXmas(){
     const isDecember = now.getMonth() === 11; // Months are 0-based
 
     if (isDecember) {
+        //add the hat
         const img = document.createElement("img");
         img.id = "xmas";
         img.src = "images/xmas.svg";
         img.alt = "Xmas hat";
         img.width = 150;
+        img.style.display = "none";
         document.body.appendChild(img);
+
+        //display the toggle
+        const toggle = document.getElementById("toggle-xmas");
+        toggle.style.display = "flex"
     }
 }
 function hideAudioRecoveryUI() {
@@ -476,4 +482,13 @@ const metronomeToggle = document.getElementById("metronome-toggle");
 metronomeToggle.addEventListener("click", () => {
     metronome = !metronome;
     metronomeToggle.classList.toggle("active", metronome);
+});
+
+/* handle xmas hat toggle */
+const toggleXmas = document.getElementById("toggle-xmas");
+toggleXmas.addEventListener("click", () => {
+    const img = document.getElementById("xmas"),
+        showingXmas = img.style.display === "none";
+    img.style.display = showingXmas ? "block" : "none";
+    toggleXmas.classList.toggle("active",showingXmas);
 });
