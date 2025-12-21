@@ -97,8 +97,10 @@ function audioHeartbeat() {
 
 
 function updateSamLayout() {
-    const gridContainer = document.querySelector("#grid-container");
-    const sam = document.querySelector("#sam");
+    const gridContainer = document.querySelector("#grid-container"),
+        sam = document.querySelector("#sam"),
+        xmas = document.getElementById("xmas");
+
     if (!gridContainer || !sam) return;
 
     const gridRect = gridContainer.getBoundingClientRect();
@@ -113,28 +115,34 @@ function updateSamLayout() {
     // determine visibility
     const showSam = spaceBelow >= SAM_MIN_CLEARANCE;
     sam.style.display = showSam ? "block" : "none";
-    if (!showSam) return;
 
-    // scale sam's width based upon actual free space
-    let width = spaceBelow * SAM_MULTIPLIER;
+    if (showSam) {
 
-    console.log(`grid height is ${viewportHeight-spaceBelow}, space below grid is ${spaceBelow}`);
-    console.log(`width is ${width}, space below is ${spaceBelow} and mutiplier is ${SAM_MULTIPLIER}`);
+        // scale sam's width based upon actual free space
+        let width = spaceBelow * SAM_MULTIPLIER;
 
-    sam.style.width = `${width}px`;
-    sam.style.left = "50%";
-    sam.style.transform = "translateX(-50%)";
+        console.log(`grid height is ${viewportHeight - spaceBelow}, space below grid is ${spaceBelow}`);
+        console.log(`width is ${width}, space below is ${spaceBelow} and mutiplier is ${SAM_MULTIPLIER}`);
 
-    //store the width for animation of eyes and brows
-    samWidth = width;
+        sam.style.width = `${width}px`;
+        sam.style.left = "50%";
+        sam.style.transform = "translateX(-50%)";
 
-    //handle xmas hat
-    const xmas = document.getElementById("xmas");
-    if (xmas ) {
-        xmas.style.position = "fixed";
-        xmas.style.width = `${samWidth * 0.65}px`;
-        xmas.style.left = `calc(50vw - ${samWidth * 0.27}px)`;
-        xmas.style.bottom = `${samWidth * 0.8}px`;
+        //store the width for animation of eyes and brows
+        samWidth = width;
+
+        //handle xmas hat
+        if (xmas) {
+            xmas.classList.remove("hidden");
+            xmas.style.position = "fixed";
+            xmas.style.width = `${samWidth * 0.65}px`;
+            xmas.style.left = `calc(50vw - ${samWidth * 0.27}px)`;
+            xmas.style.bottom = `${samWidth * 0.8}px`;
+        }
+    }else{
+        if(xmas){
+            xmas.classList.add("hidden");
+        }
     }
 }
 

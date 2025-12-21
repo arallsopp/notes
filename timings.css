@@ -173,7 +173,7 @@ select option:hover {
 
 /* Hide app initially */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Animations */
