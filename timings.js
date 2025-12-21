@@ -133,7 +133,7 @@ function updateSamLayout() {
     if (xmas) {
         xmas.style.position = "fixed";
         xmas.style.width = `${samWidth * 0.65}px`;
-        xmas.style.left = `${samWidth * 0.6}px`;
+        xmas.style.left = `calc(50vw - ${samWidth * 0.27}px)`;
         xmas.style.bottom = `${samWidth * 0.8}px`;
     }
 }
